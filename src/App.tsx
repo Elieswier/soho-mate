@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +13,12 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
+const ShellLayout = () => (
+  <AppShell>
+    <Outlet />
+  </AppShell>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -20,7 +26,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route element={<AppShell><RouteOutlet /></AppShell>}>
+          <Route element={<ShellLayout />}>
             <Route path="/" element={<Flashcards />} />
             <Route path="/quiz" element={<Quiz />} />
             <Route path="/scripts" element={<Scripts />} />
@@ -33,8 +39,5 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
-
-import { Outlet } from "react-router-dom";
-const RouteOutlet = () => <Outlet />;
 
 export default App;
