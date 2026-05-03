@@ -99,7 +99,15 @@ const Quiz = () => {
   const answered = selected !== null;
 
   return (
-    <div className="px-5 pt-4 pb-6 max-w-md mx-auto">
+    <div className="px-5 pt-4 pb-6 max-w-md mx-auto overflow-x-hidden relative">
+      {flash && (
+        <div
+          key={flash.id}
+          className="absolute top-12 left-1/2 -translate-x-1/2 text-[11px] text-sh-text animate-xp-flash pointer-events-none z-10"
+        >
+          {flash.text}
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between text-[12px] text-sh-muted">
         <span>Question {index + 1} / {total}</span>
