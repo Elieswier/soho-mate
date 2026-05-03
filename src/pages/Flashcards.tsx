@@ -114,19 +114,30 @@ const Flashcards = () => {
             style={{ transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
           >
             {/* Front */}
-            <div className="absolute inset-0 backface-hidden bg-sh-surface border border-sh-border rounded-none p-6 flex flex-col">
+            <div className="absolute inset-0 backface-hidden bg-sh-surface border border-sh-border rounded-none flex flex-col overflow-hidden">
               {card && (
                 <>
-                  <div className="text-[10px] uppercase tracking-widest text-sh-muted">
-                    {categoryLabel(card.category)}
+                  <div className="relative h-1/2 w-full bg-sh-surface overflow-hidden">
+                    <img
+                      src={card.imageUrl}
+                      alt={card.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                    />
+                    <div className="absolute inset-0 bg-black/[0.08]" />
                   </div>
-                  <div className="flex-1 flex items-center justify-center">
-                    <h2 className="font-serif text-[36px] font-normal text-sh-text text-center leading-tight">
-                      {card.name}
-                    </h2>
-                  </div>
-                  <div className="text-center text-[12px] text-sh-muted">
-                    Tap to reveal
+                  <div className="h-1/2 p-6 flex flex-col">
+                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">
+                      {categoryLabel(card.category)}
+                    </div>
+                    <div className="flex-1 flex items-center justify-center">
+                      <h2 className="font-serif text-[36px] font-normal text-sh-text text-center leading-tight">
+                        {card.name}
+                      </h2>
+                    </div>
+                    <div className="text-center text-[12px] text-sh-muted">
+                      Tap to reveal
+                    </div>
                   </div>
                 </>
               )}
