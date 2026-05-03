@@ -35,7 +35,7 @@ export const MENU_ITEMS: MenuItem[] = [
   { id: 23, name: "Reuben Ciabatta", category: "pizza-sandwiches", ingredients: "Slow-roasted asado, shifka aioli, lettuce, tomato, pickle, fries", allergens: ["Gluten", "Egg"], dietary: [], pairing: "House red" , imageUrl: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600" },
   { id: 24, name: "Dirty Burger", category: "pizza-sandwiches", ingredients: "Mustard mayo, lettuce, tomato, pickle, fries", allergens: ["Gluten", "Egg", "Mustard"], dietary: [], pairing: "Cold beer" , imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" },
   { id: 25, name: "Pizza Margherita", category: "pizza-sandwiches", ingredients: "Tomato, mozzarella, basil", allergens: ["Gluten", "Dairy"], dietary: ["Vegetarian"], pairing: "Chianti" , imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600" },
-  { id: 26, name: "Pizza Quattro Formaggi", category: "pizza-sandwiches", ingredients: "Four cheeses, mushroom", allergens: ["Gluten", "Dairy"], dietary: ["Vegetarian"], pairing: "Medium red" }
+  { id: 26, name: "Pizza Quattro Formaggi", category: "pizza-sandwiches", ingredients: "Four cheeses, mushroom", allergens: ["Gluten", "Dairy"], dietary: ["Vegetarian"], pairing: "Medium red", imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600" }
 ];
 
 export const CATEGORIES = [
