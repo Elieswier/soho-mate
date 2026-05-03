@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { QUIZ_QUESTIONS, QuizQuestion } from "@/data/quizData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useXP } from "@/hooks/useXP";
 
 const shuffle = <T,>(arr: T[]): T[] => {
   const a = [...arr];
@@ -23,15 +24,30 @@ const Quiz = () => {
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
   const [bestScore, setBestScore] = useLocalStorage<number>("sh_best_score", 0);
+  const { addXP } = useXP();
+  const [flash, setFlash] = useState<{ id: number; text: string } | null>(null);
 
   const total = questions.length;
   const q = questions[index];
   const isLast = index === total - 1;
 
+  const triggerFlash = (text: string) => {
+    const id = Date.now();
+    setFlash({ id, text });
+    setTimeout(() => setFlash((f) => (f && f.id === id ? null : f)), 800);
+  };
+
   const choose = (i: number) => {
     if (selected !== null) return;
     setSelected(i);
-    if (i === q.correctIndex) setScore((s) => s + 1);
+    if (i === q.correctIndex) {
+      setScore((s) => s + 1);
+      addXP(10);
+      triggerFlash("+10 XP");
+    } else {
+      addXP(3);
+      triggerFlash("+3 XP");
+    }
   };
 
   const next = () => {
@@ -83,7 +99,15 @@ const Quiz = () => {
   const answered = selected !== null;
 
   return (
-    <div className="px-5 pt-4 pb-6 max-w-md mx-auto">
+    <div className="px-5 pt-4 pb-6 max-w-md mx-auto overflow-x-hidden relative">
+      {flash && (
+        <div
+          key={flash.id}
+          className="absolute top-12 left-1/2 -translate-x-1/2 text-[11px] text-sh-text animate-xp-flash pointer-events-none z-10"
+        >
+          {flash.text}
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between text-[12px] text-sh-muted">
         <span>Question {index + 1} / {total}</span>
