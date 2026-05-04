@@ -232,7 +232,7 @@ const LogShift = () => {
                 key={s.id}
                 className="flex items-center justify-between py-2.5 text-[12px] border-b border-sh-border last:border-b-0"
               >
-                <span className="text-sh-muted">{s.date} · {s.area} · {s.type}</span>
+                <span className="text-sh-muted">{s.date} · {(s.areas && s.areas.length ? s.areas.join(" + ") : s.area)} · {s.type}</span>
                 <span className="text-sh-text">{s.total} NIS</span>
               </div>
             ))}
