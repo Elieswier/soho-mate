@@ -25,6 +25,7 @@ const SECTIONS: Section[] = [
   },
   {
     title: "Wine (most important upsell)",
+    onlyLangs: ["EN"],
     scripts: [
       { text: `Can I suggest something from the wine list to start?\nWe have some really nice bottles by the glass —\nwhat do you usually enjoy, red or white?` },
       { text: `That dish pairs really well with a lighter white —\nthe [wine] is a great match, a lot of guests love it.` },
