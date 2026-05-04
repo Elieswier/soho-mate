@@ -24,7 +24,7 @@ const Quiz = () => {
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
   const [bestScore, setBestScore] = useLocalStorage<number>("sh_best_score", 0);
-  const { addXP } = useXP();
+  const { addXP, updateDailyStreak } = useXP();
   const [flash, setFlash] = useState<{ id: number; text: string } | null>(null);
 
   const total = questions.length;
@@ -43,6 +43,7 @@ const Quiz = () => {
     if (i === q.correctIndex) {
       setScore((s) => s + 1);
       addXP(10);
+      updateDailyStreak();
       triggerFlash("+10 XP");
     } else {
       addXP(3);

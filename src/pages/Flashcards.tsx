@@ -15,7 +15,7 @@ const Flashcards = () => {
   const [masteredIds, setMasteredIds] = useLocalStorage<number[]>("sh_mastered", []);
   const [lang, setLang] = useState<Lang>("en");
   const [flash, setFlash] = useState<{ id: number; text: string } | null>(null);
-  const { addXP, sessionStreak, incrementSessionStreak, resetSessionStreak } = useXP();
+  const { addXP, sessionStreak, incrementSessionStreak, resetSessionStreak, updateDailyStreak } = useXP();
 
   const filtered = useMemo(
     () =>
@@ -51,6 +51,7 @@ const Flashcards = () => {
     if (level === "got") {
       addXP(15);
       incrementSessionStreak();
+      updateDailyStreak();
       triggerFlash("+15 XP");
     } else if (level === "almost") {
       addXP(5);

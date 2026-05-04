@@ -11,7 +11,7 @@ const AppShell = ({ children }: { children: ReactNode }) => {
           <span className="text-[10px] uppercase tracking-wider text-sh-muted truncate">{rank}</span>
           <span className="text-[11px] text-sh-text">{xp} XP</span>
         </div>
-        <h1 className="font-serif text-[20px] font-normal text-sh-text absolute left-1/2 -translate-x-1/2">House Tracker</h1>
+        <h1 className="font-serif text-[20px] font-normal text-sh-text absolute left-1/2 -translate-x-1/2">Soho Mate</h1>
         <div className="text-[11px] text-sh-text min-w-[40px] text-right">
           {dailyStreak > 0 ? `🔥 ${dailyStreak}` : ""}
         </div>
