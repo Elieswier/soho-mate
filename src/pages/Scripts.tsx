@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { toast } from "sonner";
 
+type Lang = "EN" | "FR" | "HE";
 type Script = { text: string; badge?: string };
-type Section = { title: string; scripts: Script[] };
+type Section = { title: string; scripts: Script[]; onlyLangs?: Lang[] };
 
 const SECTIONS: Section[] = [
   {
