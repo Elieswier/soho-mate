@@ -49,8 +49,12 @@ const Insights = () => {
     const byArea: Record<string, { tips: number; n: number }> = {};
     areas.forEach((a) => (byArea[a] = { tips: 0, n: 0 }));
     shifts.forEach((s) => {
-      byArea[s.area].tips += s.tips;
-      byArea[s.area].n += 1;
+      const list = s.areas && s.areas.length ? s.areas : (s.area ? [s.area] : []);
+      list.forEach((a) => {
+        if (!byArea[a]) return;
+        byArea[a].tips += s.tips;
+        byArea[a].n += 1;
+      });
     });
     const areaData = areas.map((a) => ({
       area: a,
@@ -85,7 +89,7 @@ const Insights = () => {
       "Tips", "Total", "Covers", "Confidence", "Notes",
     ];
     const rows = shifts.map((s) => [
-      s.date, s.dayOfWeek, s.area, s.type, s.hoursWorked,
+      s.date, s.dayOfWeek, (s.areas && s.areas.length ? s.areas.join("|") : (s.area || "")), s.type, s.hoursWorked,
       s.basePay, s.tips, s.total, s.covers, s.confidence,
       `"${(s.notes || "").replace(/"/g, '""')}"`,
     ].join(","));
