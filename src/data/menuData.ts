@@ -3,13 +3,13 @@ export type STR = { en: string; fr: string; he: string };
 export type MenuItem = {
   id: number;
   name: string;
-  category: 'smalls' | 'starters' | 'salads' | 'mains' | 'sides' | 'pizza-sandwiches';
+  category: 'smalls' | 'starters' | 'salads' | 'mains' | 'sides' | 'pizza-sandwiches' | 'soho-story' | 'soho-tlv' | 'waiter';
   ingredients: string;
   allergens: string[];
   dietary: string[];
   pairing: string;
   imageUrl?: string;
-  str: STR;
+  str?: STR;
 };
 
 export const MENU_ITEMS: MenuItem[] = [
