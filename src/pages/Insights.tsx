@@ -22,8 +22,74 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
 
 const axisTick = { fontSize: 10, fill: "#6B6560", fontFamily: "DM Sans" };
 
+const BACKUP_KEYS = [
+  "sh_shifts", "sh_xp", "sh_streak", "sh_last_study",
+  "sh_mastered", "sh_best_score", "sh_onboarded",
+];
+
 const Insights = () => {
   const [shifts] = useLocalStorage<Shift[]>("sh_shifts", []);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingRestore, setPendingRestore] = useState<Record<string, unknown> | null>(null);
+  const prevCountRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (prevCountRef.current === null) {
+      prevCountRef.current = shifts.length;
+      return;
+    }
+    if (shifts.length > prevCountRef.current && shifts.length % 3 === 0) {
+      toast("Don't forget to back up your data", { duration: 3000 });
+    }
+    prevCountRef.current = shifts.length;
+  }, [shifts.length]);
+
+  const backup = () => {
+    const data: Record<string, unknown> = {};
+    BACKUP_KEYS.forEach((k) => {
+      const v = localStorage.getItem(k);
+      if (v !== null) {
+        try { data[k] = JSON.parse(v); } catch { data[k] = v; }
+      }
+    });
+    const payload = { version: 1, exportedAt: new Date().toISOString(), data };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sohomate-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const onRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        if (parsed.version !== 1 || !parsed.data || typeof parsed.data !== "object") {
+          toast("Invalid backup file");
+          return;
+        }
+        setPendingRestore(parsed.data);
+      } catch {
+        toast("Invalid backup file");
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const confirmRestore = () => {
+    if (!pendingRestore) return;
+    Object.entries(pendingRestore).forEach(([k, v]) => {
+      localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v));
+    });
+    window.location.reload();
+  };
+
 
   const stats = useMemo(() => {
     if (shifts.length === 0) return null;
