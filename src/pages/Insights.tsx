@@ -12,13 +12,7 @@ import {
 } from "recharts";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Shift, DAYS } from "@/lib/shifts";
-
-const Stat = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-sh-surface border border-sh-border rounded-none p-3 text-center flex-1">
-    <div className="text-[10px] uppercase tracking-widest text-sh-muted">{label}</div>
-    <div className="font-serif text-[28px] text-sh-text leading-tight mt-1">{value}</div>
-  </div>
-);
+import { MENU_ITEMS, CATEGORIES } from "@/data/menuData";
 
 const axisTick = { fontSize: 10, fill: "#6B6560", fontFamily: "DM Sans" };
 
@@ -27,8 +21,48 @@ const BACKUP_KEYS = [
   "sh_mastered", "sh_best_score", "sh_onboarded",
 ];
 
+const RANKS = [
+  { min: 0, name: "Soho Newcomer" },
+  { min: 100, name: "Soho Regular" },
+  { min: 300, name: "Soho Insider" },
+  { min: 600, name: "Soho Veteran" },
+  { min: 1000, name: "Soho Mate" },
+];
+
+const rankInfo = (xp: number) => {
+  let current = RANKS[0];
+  let next: typeof RANKS[number] | null = null;
+  for (let i = 0; i < RANKS.length; i++) {
+    if (xp >= RANKS[i].min) {
+      current = RANKS[i];
+      next = RANKS[i + 1] ?? null;
+    }
+  }
+  return { current, next };
+};
+
+const StatCard = ({ label, value }: { label: string; value: string }) => (
+  <div className="bg-sh-surface border border-sh-border rounded-none p-3 text-center">
+    <div className="text-[10px] uppercase tracking-widest text-sh-muted">{label}</div>
+    <div className="font-serif text-[28px] text-sh-text leading-tight mt-1">{value}</div>
+  </div>
+);
+
+const ShiftStat = ({ label, value }: { label: string; value: string }) => (
+  <div className="bg-sh-surface border border-sh-border rounded-none p-3 text-center flex-1">
+    <div className="text-[10px] uppercase tracking-widest text-sh-muted">{label}</div>
+    <div className="font-serif text-[28px] text-sh-text leading-tight mt-1">{value}</div>
+  </div>
+);
+
 const Insights = () => {
+  const [tab, setTab] = useState<"progress" | "shifts">("progress");
   const [shifts] = useLocalStorage<Shift[]>("sh_shifts", []);
+  const [xp] = useLocalStorage<number>("sh_xp", 0);
+  const [streak] = useLocalStorage<number>("sh_streak", 0);
+  const [mastered] = useLocalStorage<number[]>("sh_mastered", []);
+  const [bestScore] = useLocalStorage<number>("sh_best_score", 0);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingRestore, setPendingRestore] = useState<Record<string, unknown> | null>(null);
   const prevCountRef = useRef<number | null>(null);
@@ -90,14 +124,12 @@ const Insights = () => {
     window.location.reload();
   };
 
-
   const stats = useMemo(() => {
     if (shifts.length === 0) return null;
     const totalEarned = shifts.reduce((s, x) => s + x.total, 0);
     const totalTips = shifts.reduce((s, x) => s + x.tips, 0);
     const avgTip = Math.round(totalTips / shifts.length);
 
-    // by day of week (avg total)
     const byDay: Record<string, { sum: number; n: number }> = {};
     DAYS.forEach((d) => (byDay[d] = { sum: 0, n: 0 }));
     shifts.forEach((s) => {
@@ -111,7 +143,6 @@ const Insights = () => {
     }));
     const bestDay = [...dayData].sort((a, b) => b.avg - a.avg)[0];
 
-    // by area (avg tips)
     const areas = ["Indoor", "Pool", "Garden"] as const;
     const byArea: Record<string, { tips: number; n: number }> = {};
     areas.forEach((a) => (byArea[a] = { tips: 0, n: 0 }));
@@ -129,7 +160,6 @@ const Insights = () => {
     }));
     const bestArea = [...areaData].sort((a, b) => b.avg - a.avg)[0];
 
-    // confidence trend — last 10 by date asc
     const last10 = [...shifts]
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(-10)
@@ -138,16 +168,7 @@ const Insights = () => {
         return { label: `${d}/${m}`, confidence: s.confidence };
       });
 
-    return {
-      totalEarned,
-      avgTip,
-      count: shifts.length,
-      dayData,
-      areaData,
-      bestDay,
-      bestArea,
-      last10,
-    };
+    return { totalEarned, avgTip, count: shifts.length, dayData, areaData, bestDay, bestArea, last10 };
   }, [shifts]);
 
   const exportCSV = () => {
@@ -165,139 +186,218 @@ const Insights = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `housetracker-shifts-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `sohomate-shifts-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  if (!stats) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-9rem)] px-6">
-        <h2 className="font-serif text-[24px] text-sh-muted text-center">
-          Log your first shift to see insights.
-        </h2>
-      </div>
-    );
-  }
+  // Progress tab derived
+  const { current: rank, next } = rankInfo(xp);
+  const rangeStart = rank.min;
+  const rangeEnd = next ? next.min : rank.min;
+  const progressPct = next ? Math.min(100, Math.max(0, ((xp - rangeStart) / (rangeEnd - rangeStart)) * 100)) : 100;
+  const progressLabel = next
+    ? `${xp} XP → ${next.min} XP to reach ${next.name}`
+    : `${xp} XP — top rank reached`;
+
+  const studySessions = Math.max(0, Math.floor(xp / 15));
+
+  const weakest = useMemo(() => {
+    if (!mastered || mastered.length === 0) return null;
+    const cats = CATEGORIES.filter((c) => c.key !== "all");
+    let worst: { label: string; pct: number } | null = null;
+    cats.forEach((c) => {
+      const items = MENU_ITEMS.filter((m) => m.category === c.key);
+      if (items.length === 0) return;
+      const masteredCount = items.filter((m) => mastered.includes(m.id)).length;
+      const pct = masteredCount / items.length;
+      if (worst === null || pct < worst.pct) worst = { label: c.label, pct };
+    });
+    return worst;
+  }, [mastered]);
 
   return (
     <div className="px-5 pt-4 pb-8 max-w-md mx-auto flex flex-col gap-5">
-      {/* Summary */}
-      <div className="flex gap-2">
-        <Stat label="Total earned" value={`${stats.totalEarned} NIS`} />
-        <Stat label="Avg tip" value={`${stats.avgTip}`} />
-        <Stat label="Shifts" value={`${stats.count}`} />
-      </div>
-
-      {/* Best day */}
-      <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-        <div className="text-[10px] uppercase tracking-widest text-sh-muted">Best day</div>
-        <div className="font-serif text-[20px] text-sh-text mt-1">
-          {stats.bestDay.day} — {stats.bestDay.avg} NIS avg
-        </div>
-      </div>
-
-      {/* Best area */}
-      <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-        <div className="text-[10px] uppercase tracking-widest text-sh-muted">Best area</div>
-        <div className="font-serif text-[20px] text-sh-text mt-1">
-          {stats.bestArea.area} — {stats.bestArea.avg} NIS avg tips
-        </div>
-      </div>
-
-      {/* Earnings by day */}
-      <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-        <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Earnings by day</div>
-        <div className="h-44">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.dayData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-              <XAxis dataKey="day" tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} />
-              <YAxis tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} width={32} />
-              <Tooltip cursor={{ fill: "#D6CEC3" }} contentStyle={{ background: "#FAF8F5", border: "1px solid #D6CEC3", borderRadius: 0, fontSize: 12 }} />
-              <Bar dataKey="avg" fill="#1A1A1A" background={{ fill: "#D6CEC3" }} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Earnings by area */}
-      <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-        <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Earnings by area</div>
-        <div className="h-44">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.areaData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-              <XAxis dataKey="area" tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} />
-              <YAxis tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} width={32} />
-              <Tooltip cursor={{ fill: "#D6CEC3" }} contentStyle={{ background: "#FAF8F5", border: "1px solid #D6CEC3", borderRadius: 0, fontSize: 12 }} />
-              <Bar dataKey="avg" fill="#1A1A1A" background={{ fill: "#D6CEC3" }} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Confidence trend */}
-      <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-        <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Confidence trend</div>
-        <div className="h-44">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={stats.last10} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-              <XAxis dataKey="label" tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} />
-              <YAxis domain={[1, 10]} tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} width={28} />
-              <Tooltip contentStyle={{ background: "#FAF8F5", border: "1px solid #D6CEC3", borderRadius: 0, fontSize: 12 }} />
-              <Line type="monotone" dataKey="confidence" stroke="#1A1A1A" strokeWidth={1.5} dot={{ fill: "#1A1A1A", r: 3 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <button
-        onClick={exportCSV}
-        className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-      >
-        Export CSV
-      </button>
-
-      <button
-        onClick={backup}
-        className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-      >
-        Backup all data
-      </button>
-
-      <button
-        onClick={() => fileInputRef.current?.click()}
-        className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-      >
-        Restore backup
-      </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json,application/json"
-        className="hidden"
-        onChange={onRestoreFile}
-      />
-
-      {pendingRestore && (
-        <div className="bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3">
-          <p className="text-[12px] text-sh-text">
-            This will replace all current data. Tap Restore to confirm.
-          </p>
-          <div className="flex gap-2">
+      {/* Tabs */}
+      <div className="flex">
+        {([
+          ["progress", "My Progress"],
+          ["shifts", "My Shifts"],
+        ] as const).map(([key, label]) => {
+          const active = tab === key;
+          return (
             <button
-              onClick={confirmRestore}
-              className="flex-1 py-3 text-[14px] bg-sh-text text-sh-bg rounded-none"
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex-1 py-2 text-[13px] rounded-none bg-transparent ${
+                active
+                  ? "text-sh-text border-b border-sh-text"
+                  : "text-sh-muted border-b border-transparent"
+              }`}
             >
-              Restore
+              {label}
             </button>
-            <button
-              onClick={() => setPendingRestore(null)}
-              className="flex-1 py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-            >
-              Cancel
-            </button>
+          );
+        })}
+      </div>
+
+      {tab === "progress" && (
+        <>
+          {/* Rank card */}
+          <div className="bg-sh-surface border border-sh-border rounded-none p-4">
+            <div className="font-serif text-[32px] text-sh-text leading-tight">{rank.name}</div>
+            <div className="mt-3 h-1 w-full bg-sh-border rounded-none">
+              <div className="h-full bg-sh-text" style={{ width: `${progressPct}%` }} />
+            </div>
+            <div className="mt-2 text-[11px] text-sh-muted">{progressLabel}</div>
           </div>
-        </div>
+
+          {/* 2x2 stat grid */}
+          <div className="grid grid-cols-2 gap-2">
+            <StatCard label="Daily streak" value={`🔥 ${streak} days`} />
+            <StatCard label="Best quiz score" value={`${bestScore} / 15`} />
+            <StatCard label="Cards mastered" value={`${(mastered || []).length} / 57`} />
+            <StatCard label="Study sessions" value={`${studySessions}`} />
+          </div>
+
+          {/* Weakest category */}
+          <div className="bg-sh-surface border border-sh-border rounded-none p-4">
+            <div className="text-[10px] uppercase tracking-widest text-sh-muted">Focus tonight:</div>
+            {weakest ? (
+              <div className="font-serif text-[20px] text-sh-text mt-1">{weakest.label}</div>
+            ) : (
+              <div className="font-serif text-[18px] text-sh-muted mt-1">
+                Complete a quiz to see insights
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {tab === "shifts" && (
+        <>
+          {!stats ? (
+            <div className="flex items-center justify-center min-h-[40vh] px-6">
+              <h2 className="font-serif text-[24px] text-sh-muted text-center">
+                Log your first shift to see insights.
+              </h2>
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-2">
+                <ShiftStat label="Total earned" value={`${stats.totalEarned} NIS`} />
+                <ShiftStat label="Avg tip" value={`${stats.avgTip}`} />
+                <ShiftStat label="Shifts" value={`${stats.count}`} />
+              </div>
+
+              <div className="bg-sh-surface border border-sh-border rounded-none p-4">
+                <div className="text-[10px] uppercase tracking-widest text-sh-muted">Best day</div>
+                <div className="font-serif text-[20px] text-sh-text mt-1">
+                  {stats.bestDay.day} — {stats.bestDay.avg} NIS avg
+                </div>
+              </div>
+
+              <div className="bg-sh-surface border border-sh-border rounded-none p-4">
+                <div className="text-[10px] uppercase tracking-widest text-sh-muted">Best area</div>
+                <div className="font-serif text-[20px] text-sh-text mt-1">
+                  {stats.bestArea.area} — {stats.bestArea.avg} NIS avg tips
+                </div>
+              </div>
+
+              <div className="bg-sh-surface border border-sh-border rounded-none p-4">
+                <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Earnings by day</div>
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={stats.dayData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                      <XAxis dataKey="day" tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} />
+                      <YAxis tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} width={32} />
+                      <Tooltip cursor={{ fill: "#D6CEC3" }} contentStyle={{ background: "#FAF8F5", border: "1px solid #D6CEC3", borderRadius: 0, fontSize: 12 }} />
+                      <Bar dataKey="avg" fill="#1A1A1A" background={{ fill: "#D6CEC3" }} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-sh-surface border border-sh-border rounded-none p-4">
+                <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Earnings by area</div>
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={stats.areaData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                      <XAxis dataKey="area" tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} />
+                      <YAxis tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} width={32} />
+                      <Tooltip cursor={{ fill: "#D6CEC3" }} contentStyle={{ background: "#FAF8F5", border: "1px solid #D6CEC3", borderRadius: 0, fontSize: 12 }} />
+                      <Bar dataKey="avg" fill="#1A1A1A" background={{ fill: "#D6CEC3" }} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-sh-surface border border-sh-border rounded-none p-4">
+                <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Confidence trend</div>
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={stats.last10} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+                      <XAxis dataKey="label" tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} />
+                      <YAxis domain={[1, 10]} tick={axisTick} axisLine={{ stroke: "#D6CEC3" }} tickLine={false} width={28} />
+                      <Tooltip contentStyle={{ background: "#FAF8F5", border: "1px solid #D6CEC3", borderRadius: 0, fontSize: 12 }} />
+                      <Line type="monotone" dataKey="confidence" stroke="#1A1A1A" strokeWidth={1.5} dot={{ fill: "#1A1A1A", r: 3 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <button
+                onClick={exportCSV}
+                className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
+              >
+                Export CSV
+              </button>
+            </>
+          )}
+
+          <button
+            onClick={backup}
+            className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
+          >
+            Backup all data
+          </button>
+
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
+          >
+            Restore backup
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={onRestoreFile}
+          />
+
+          {pendingRestore && (
+            <div className="bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3">
+              <p className="text-[12px] text-sh-text">
+                This will replace all current data. Tap Restore to confirm.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={confirmRestore}
+                  className="flex-1 py-3 text-[14px] bg-sh-text text-sh-bg rounded-none"
+                >
+                  Restore
+                </button>
+                <button
+                  onClick={() => setPendingRestore(null)}
+                  className="flex-1 py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
