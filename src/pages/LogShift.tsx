@@ -95,7 +95,7 @@ const LogShift = () => {
         <label className="block text-[10px] uppercase tracking-widest text-sh-muted mb-2">Service area</label>
         <div className="flex gap-2">
           {(["Indoor", "Pool", "Garden"] as const).map((a) => (
-            <Pill key={a} active={area === a} onClick={() => setArea(a)}>{a}</Pill>
+            <Pill key={a} active={areas.includes(a)} onClick={() => toggleArea(a)}>{a}</Pill>
           ))}
         </div>
       </div>
