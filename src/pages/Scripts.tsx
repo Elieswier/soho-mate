@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { toast } from "sonner";
 
+type Lang = "EN" | "FR" | "HE";
 type Script = { text: string; badge?: string };
-type Section = { title: string; scripts: Script[] };
+type Section = { title: string; scripts: Script[]; onlyLangs?: Lang[] };
 
 const SECTIONS: Section[] = [
   {
@@ -23,6 +25,7 @@ const SECTIONS: Section[] = [
   },
   {
     title: "Wine (most important upsell)",
+    onlyLangs: ["EN"],
     scripts: [
       { text: `Can I suggest something from the wine list to start?\nWe have some really nice bottles by the glass —\nwhat do you usually enjoy, red or white?` },
       { text: `That dish pairs really well with a lighter white —\nthe [wine] is a great match, a lot of guests love it.` },
@@ -92,20 +95,51 @@ const ScriptCard = ({ script }: { script: Script }) => {
 };
 
 const Scripts = () => {
+  const [lang, setLang] = useState<Lang>("EN");
+  const langs: Lang[] = ["EN", "FR", "HE"];
+
+  const filterScripts = (section: Section) => {
+    return section.scripts.filter((s) => !s.badge || s.badge === lang);
+  };
+
   return (
     <div className="px-5 pt-4 pb-8 max-w-md mx-auto flex flex-col gap-6">
-      {SECTIONS.map((section) => (
-        <section key={section.title}>
-          <h3 className="text-[10px] uppercase tracking-widest text-sh-muted border-b border-sh-border pb-2 mb-3">
-            {section.title}
-          </h3>
-          <div className="flex flex-col gap-3">
-            {section.scripts.map((s, i) => (
-              <ScriptCard key={i} script={s} />
-            ))}
-          </div>
-        </section>
-      ))}
+      <div className="flex gap-2">
+        {langs.map((l) => {
+          const active = l === lang;
+          return (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`px-3 py-1.5 text-[10px] uppercase tracking-wide rounded-none border ${
+                active
+                  ? "bg-sh-text text-sh-bg border-sh-text"
+                  : "bg-transparent text-sh-muted border-sh-border"
+              }`}
+            >
+              {l}
+            </button>
+          );
+        })}
+      </div>
+
+      {SECTIONS.map((section) => {
+        if (section.onlyLangs && !section.onlyLangs.includes(lang)) return null;
+        const visible = filterScripts(section);
+        if (visible.length === 0) return null;
+        return (
+          <section key={section.title}>
+            <h3 className="text-[10px] uppercase tracking-widest text-sh-muted border-b border-sh-border pb-2 mb-3">
+              {section.title}
+            </h3>
+            <div className="flex flex-col gap-3">
+              {visible.map((s, i) => (
+                <ScriptCard key={i} script={s} />
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
       <section>
         <h3 className="text-[10px] uppercase tracking-widest text-sh-muted border-b border-sh-border pb-2 mb-3">
