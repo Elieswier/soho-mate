@@ -138,93 +138,122 @@ const Flashcards = () => {
           >
             <div className="absolute inset-0 backface-hidden bg-sh-surface border border-sh-border rounded-none flex flex-col overflow-hidden">
               {card && (
-                <>
-                  <div className="relative h-1/2 w-full bg-sh-surface overflow-hidden">
-                    <img
-                      src={card.imageUrl}
-                      alt={card.name}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                    />
-                    <div className="absolute inset-0 bg-black/[0.08]" />
-                  </div>
-                  <div className="h-1/2 p-6 flex flex-col">
+                card.imageUrl ? (
+                  <>
+                    <div className="relative h-1/2 w-full bg-sh-surface overflow-hidden">
+                      <img
+                        src={card.imageUrl}
+                        alt={card.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                      />
+                      <div className="absolute inset-0 bg-black/[0.08]" />
+                    </div>
+                    <div className="h-1/2 p-6 flex flex-col">
+                      <div className="text-[10px] uppercase tracking-widest text-sh-muted">
+                        {categoryLabel(card.category)}
+                      </div>
+                      <div className="flex-1 flex items-center justify-center">
+                        <h2 className="font-serif text-[36px] font-normal text-sh-text text-center leading-tight">
+                          {card.name}
+                        </h2>
+                      </div>
+                      <div className="text-center text-[12px] text-sh-muted">Tap to reveal</div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="h-full p-6 flex flex-col">
                     <div className="text-[10px] uppercase tracking-widest text-sh-muted">
                       {categoryLabel(card.category)}
                     </div>
                     <div className="flex-1 flex items-center justify-center">
-                      <h2 className="font-serif text-[36px] font-normal text-sh-text text-center leading-tight">
+                      <h2 className="font-serif text-[24px] font-normal text-sh-text text-center leading-snug">
                         {card.name}
                       </h2>
                     </div>
                     <div className="text-center text-[12px] text-sh-muted">Tap to reveal</div>
                   </div>
-                </>
+                )
               )}
             </div>
 
             <div className="absolute inset-0 backface-hidden rotate-y-180 bg-sh-surface border border-sh-border rounded-none p-6 flex flex-col">
               {card && (
-                <>
-                  <div className="text-[10px] uppercase tracking-widest text-sh-muted">
-                    {categoryLabel(card.category)}
-                  </div>
-                  <div className="flex-1 flex flex-col items-center justify-center gap-3 overflow-y-auto">
-                    <p className="text-[13px] text-sh-text text-center leading-relaxed">
-                      {card.ingredients}
-                    </p>
-                    {card.allergens.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 justify-center">
-                        {card.allergens.map((a) => (
-                          <span key={a} className="px-2 py-0.5 text-[10px] bg-sh-btn text-sh-bg rounded-none">{a}</span>
-                        ))}
-                      </div>
-                    )}
-                    {card.dietary.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 justify-center">
-                        {card.dietary.map((d) => (
-                          <span key={d} className="px-2 py-0.5 text-[10px] border border-sh-text text-sh-text bg-transparent rounded-none">{d}</span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Language toggle */}
-                    <div
-                      className="flex gap-1.5 mt-1"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {langs.map((l) => {
-                        const active = lang === l;
-                        return (
-                          <button
-                            key={l}
-                            onClick={(e) => { e.stopPropagation(); setLang(l); }}
-                            className={`px-2 py-0.5 text-[9px] uppercase tracking-wider rounded-none border ${
-                              active
-                                ? "bg-sh-btn text-sh-btn-text border-sh-btn"
-                                : "bg-transparent text-sh-muted border-sh-border"
-                            }`}
-                          >
-                            {l}
-                          </button>
-                        );
-                      })}
+                card.str ? (
+                  <>
+                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">
+                      {categoryLabel(card.category)}
                     </div>
+                    <div className="flex-1 flex flex-col items-center justify-center gap-3 overflow-y-auto">
+                      <p className="text-[13px] text-sh-text text-center leading-relaxed">
+                        {card.ingredients}
+                      </p>
+                      {card.allergens.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 justify-center">
+                          {card.allergens.map((a) => (
+                            <span key={a} className="px-2 py-0.5 text-[10px] bg-sh-btn text-sh-bg rounded-none">{a}</span>
+                          ))}
+                        </div>
+                      )}
+                      {card.dietary.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 justify-center">
+                          {card.dietary.map((d) => (
+                            <span key={d} className="px-2 py-0.5 text-[10px] border border-sh-text text-sh-text bg-transparent rounded-none">{d}</span>
+                          ))}
+                        </div>
+                      )}
 
-                    {lang === "he" ? (
-                      <p className="text-[14px] text-sh-text text-right w-full" dir="rtl">
-                        {card.str.he}
-                      </p>
-                    ) : (
-                      <p className="font-serif italic text-[15px] text-sh-text text-center leading-snug">
-                        {card.str[lang]}
-                      </p>
+                      {/* Language toggle */}
+                      <div
+                        className="flex gap-1.5 mt-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {langs.map((l) => {
+                          const active = lang === l;
+                          return (
+                            <button
+                              key={l}
+                              onClick={(e) => { e.stopPropagation(); setLang(l); }}
+                              className={`px-2 py-0.5 text-[9px] uppercase tracking-wider rounded-none border ${
+                                active
+                                  ? "bg-sh-btn text-sh-btn-text border-sh-btn"
+                                  : "bg-transparent text-sh-muted border-sh-border"
+                              }`}
+                            >
+                              {l}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {lang === "he" ? (
+                        <p className="text-[14px] text-sh-text text-right w-full" dir="rtl">
+                          {card.str.he}
+                        </p>
+                      ) : (
+                        <p className="font-serif italic text-[15px] text-sh-text text-center leading-snug">
+                          {card.str[lang]}
+                        </p>
+                      )}
+                    </div>
+                    {card.pairing && (
+                      <div className="text-center text-[11px] italic text-sh-muted">
+                        Pairs with: {card.pairing}
+                      </div>
                     )}
+                  </>
+                ) : (
+                  <div className="h-full flex flex-col">
+                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">
+                      {categoryLabel(card.category)}
+                    </div>
+                    <div className="flex-1 flex items-center justify-center">
+                      <p className="font-serif text-[20px] text-sh-text text-center leading-snug">
+                        {card.ingredients}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-center text-[11px] italic text-sh-muted">
-                    Pairs with: {card.pairing}
-                  </div>
-                </>
+                )
               )}
             </div>
           </div>
