@@ -2,7 +2,8 @@ export type Shift = {
   id: number;
   date: string; // YYYY-MM-DD
   dayOfWeek: string;
-  area: "Indoor" | "Pool" | "Garden";
+  area?: "Indoor" | "Pool" | "Garden";
+  areas: ("Indoor" | "Pool" | "Garden")[];
   type: "Lunch" | "Dinner" | "Event";
   startTime: string;
   endTime: string;

@@ -3,12 +3,12 @@ export type STR = { en: string; fr: string; he: string };
 export type MenuItem = {
   id: number;
   name: string;
-  category: 'smalls' | 'starters' | 'salads' | 'mains' | 'pizza-sandwiches';
+  category: 'smalls' | 'starters' | 'salads' | 'mains' | 'sides' | 'pizza-sandwiches';
   ingredients: string;
   allergens: string[];
   dietary: string[];
   pairing: string;
-  imageUrl: string;
+  imageUrl?: string;
   str: STR;
 };
 
@@ -169,6 +169,36 @@ export const MENU_ITEMS: MenuItem[] = [
       fr: "Pizza aux quatre fromages et champignons — riche, savoureuse et gourmande.",
       he: "פיצה ארבע גבינות עם פטריות — עשירה, מלוחה ופשוט מפנקת.",
     } },
+  { id: 27, name: "Green Salad", category: "sides", ingredients: "Mixed greens", allergens: [], dietary: ["Plant-based"], pairing: "Anything",
+    str: {
+      en: "Simple, fresh mixed greens — light and clean.",
+      fr: "Une salade verte simple et fraîche — légère et nette.",
+      he: "סלט ירוק פשוט וטרי. קליל.",
+    } },
+  { id: 28, name: "Sweet Potato Fries", category: "sides", ingredients: "Sweet potato", allergens: ["Check fryer cross-contamination"], dietary: ["Plant-based"], pairing: "Burgers, mains",
+    str: {
+      en: "Crispy sweet potato fries — naturally sweet, perfectly salted.",
+      fr: "Frites de patate douce croustillantes — douces et salées à la perfection.",
+      he: "צ'יפס בטטה פריך. מתוק-מלוח, ממכר.",
+    } },
+  { id: 29, name: "Fries", category: "sides", ingredients: "Potato", allergens: ["Check fryer cross-contamination"], dietary: ["Plant-based"], pairing: "Burgers, mains",
+    str: {
+      en: "Classic fries — crispy outside, fluffy inside.",
+      fr: "Frites classiques — croustillantes dehors, moelleuses dedans.",
+      he: "צ'יפס קלאסי. פשוט עובד.",
+    } },
+  { id: 30, name: "Tomato & Onion Salad", category: "sides", ingredients: "Tomato, onion", allergens: [], dietary: ["Plant-based"], pairing: "Any main",
+    str: {
+      en: "Fresh tomato and onion — simple, honest, Mediterranean.",
+      fr: "Tomate et oignon frais — simple, honnête, méditerranéen.",
+      he: "סלט עגבניות ובצל. ישראלי בנשמה.",
+    } },
+  { id: 31, name: "Focaccia", category: "sides", ingredients: "Bread, olive oil", allergens: ["Gluten"], dietary: ["Plant-based"], pairing: "Starters, dips",
+    str: {
+      en: "Warm, olive-oil-rich focaccia — perfect for sharing.",
+      fr: "Focaccia tiède et généreuse en huile d'olive — idéale à partager.",
+      he: "פוקאצ'ה חמה עם שמן זית. מושלמת לשיתוף.",
+    } },
 ];
 
 export const CATEGORIES = [
@@ -177,5 +207,6 @@ export const CATEGORIES = [
   { key: 'starters', label: 'Starters' },
   { key: 'salads', label: 'Salads' },
   { key: 'mains', label: 'Mains' },
+  { key: 'sides', label: 'Sides' },
   { key: 'pizza-sandwiches', label: 'Pizza & Sandwiches' },
 ] as const;

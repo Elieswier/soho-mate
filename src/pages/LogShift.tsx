@@ -31,7 +31,7 @@ const LogShift = () => {
   const [shifts, setShifts] = useLocalStorage<Shift[]>("sh_shifts", []);
 
   const [date, setDate] = useState(todayISO());
-  const [area, setArea] = useState<Shift["area"]>("Indoor");
+  const [areas, setAreas] = useState<Shift["areas"]>(["Indoor"]);
   const [type, setType] = useState<Shift["type"]>("Dinner");
   const [startTime, setStartTime] = useState("12:00");
   const [endTime, setEndTime] = useState("20:00");
@@ -45,6 +45,10 @@ const LogShift = () => {
   const tipsNum = Number(tips) || 0;
   const total = basePay + tipsNum;
 
+  const toggleArea = (a: "Indoor" | "Pool" | "Garden") => {
+    setAreas((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
+  };
+
   const submit = () => {
     const d = new Date(date + "T00:00:00");
     const dayOfWeek = DAYS[d.getDay()];
@@ -52,7 +56,7 @@ const LogShift = () => {
       id: Date.now(),
       date,
       dayOfWeek,
-      area,
+      areas,
       type,
       startTime,
       endTime,
@@ -91,7 +95,7 @@ const LogShift = () => {
         <label className="block text-[10px] uppercase tracking-widest text-sh-muted mb-2">Service area</label>
         <div className="flex gap-2">
           {(["Indoor", "Pool", "Garden"] as const).map((a) => (
-            <Pill key={a} active={area === a} onClick={() => setArea(a)}>{a}</Pill>
+            <Pill key={a} active={areas.includes(a)} onClick={() => toggleArea(a)}>{a}</Pill>
           ))}
         </div>
       </div>
@@ -228,7 +232,7 @@ const LogShift = () => {
                 key={s.id}
                 className="flex items-center justify-between py-2.5 text-[12px] border-b border-sh-border last:border-b-0"
               >
-                <span className="text-sh-muted">{s.date} · {s.area} · {s.type}</span>
+                <span className="text-sh-muted">{s.date} · {(s.areas && s.areas.length ? s.areas.join(" + ") : s.area)} · {s.type}</span>
                 <span className="text-sh-text">{s.total} NIS</span>
               </div>
             ))}
