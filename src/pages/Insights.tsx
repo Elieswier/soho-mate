@@ -63,8 +63,6 @@ const Insights = () => {
   const [mastered] = useLocalStorage<number[]>("sh_mastered", []);
   const [bestScore] = useLocalStorage<number>("sh_best_score", 0);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [pendingRestore, setPendingRestore] = useState<Record<string, unknown> | null>(null);
   const prevCountRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -77,52 +75,6 @@ const Insights = () => {
     }
     prevCountRef.current = shifts.length;
   }, [shifts.length]);
-
-  const backup = () => {
-    const data: Record<string, unknown> = {};
-    BACKUP_KEYS.forEach((k) => {
-      const v = localStorage.getItem(k);
-      if (v !== null) {
-        try { data[k] = JSON.parse(v); } catch { data[k] = v; }
-      }
-    });
-    const payload = { version: 1, exportedAt: new Date().toISOString(), data };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sohomate-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const onRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(String(reader.result));
-        if (parsed.version !== 1 || !parsed.data || typeof parsed.data !== "object") {
-          toast("Invalid backup file");
-          return;
-        }
-        setPendingRestore(parsed.data);
-      } catch {
-        toast("Invalid backup file");
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const confirmRestore = () => {
-    if (!pendingRestore) return;
-    Object.entries(pendingRestore).forEach(([k, v]) => {
-      localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v));
-    });
-    window.location.reload();
-  };
 
   const stats = useMemo(() => {
     if (shifts.length === 0) return null;
