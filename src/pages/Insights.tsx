@@ -16,11 +16,6 @@ import { MENU_ITEMS, CATEGORIES } from "@/data/menuData";
 
 const axisTick = { fontSize: 10, fill: "#6B6560", fontFamily: "DM Sans" };
 
-const BACKUP_KEYS = [
-  "sh_shifts", "sh_xp", "sh_streak", "sh_last_study",
-  "sh_mastered", "sh_best_score", "sh_onboarded",
-];
-
 const RANKS = [
   { min: 0, name: "Soho Newcomer" },
   { min: 100, name: "Soho Regular" },
@@ -63,8 +58,6 @@ const Insights = () => {
   const [mastered] = useLocalStorage<number[]>("sh_mastered", []);
   const [bestScore] = useLocalStorage<number>("sh_best_score", 0);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [pendingRestore, setPendingRestore] = useState<Record<string, unknown> | null>(null);
   const prevCountRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -77,52 +70,6 @@ const Insights = () => {
     }
     prevCountRef.current = shifts.length;
   }, [shifts.length]);
-
-  const backup = () => {
-    const data: Record<string, unknown> = {};
-    BACKUP_KEYS.forEach((k) => {
-      const v = localStorage.getItem(k);
-      if (v !== null) {
-        try { data[k] = JSON.parse(v); } catch { data[k] = v; }
-      }
-    });
-    const payload = { version: 1, exportedAt: new Date().toISOString(), data };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sohomate-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const onRestoreFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = JSON.parse(String(reader.result));
-        if (parsed.version !== 1 || !parsed.data || typeof parsed.data !== "object") {
-          toast("Invalid backup file");
-          return;
-        }
-        setPendingRestore(parsed.data);
-      } catch {
-        toast("Invalid backup file");
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const confirmRestore = () => {
-    if (!pendingRestore) return;
-    Object.entries(pendingRestore).forEach(([k, v]) => {
-      localStorage.setItem(k, typeof v === "string" ? v : JSON.stringify(v));
-    });
-    window.location.reload();
-  };
 
   const stats = useMemo(() => {
     if (shifts.length === 0) return null;
@@ -354,59 +301,6 @@ const Insights = () => {
               </button>
             </>
           )}
-
-          <button
-            onClick={backup}
-            className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-          >
-            Backup all data
-          </button>
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-          >
-            Restore backup
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json,application/json"
-            className="hidden"
-            onChange={onRestoreFile}
-          />
-
-          {pendingRestore && (
-            <div className="bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3">
-              <p className="text-[12px] text-sh-text">
-                This will replace all current data. Tap Restore to confirm.
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={confirmRestore}
-                  className="flex-1 py-3 text-[14px] bg-sh-text text-sh-bg rounded-none"
-                >
-                  Restore
-                </button>
-                <button
-                  onClick={() => setPendingRestore(null)}
-                  className="flex-1 py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={async () => {
-              const { supabase } = await import("@/lib/supabase");
-              await supabase.auth.signOut();
-            }}
-            className="text-[11px] text-sh-muted underline self-center mt-2"
-          >
-            Sign out
-          </button>
         </>
       )}
     </div>
