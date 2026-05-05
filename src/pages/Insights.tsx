@@ -397,6 +397,16 @@ const Insights = () => {
               </div>
             </div>
           )}
+
+          <button
+            onClick={async () => {
+              const { supabase } = await import("@/lib/supabase");
+              await supabase.auth.signOut();
+            }}
+            className="text-[11px] text-sh-muted underline self-center mt-2"
+          >
+            Sign out
+          </button>
         </>
       )}
     </div>
