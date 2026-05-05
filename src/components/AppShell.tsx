@@ -1,11 +1,14 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { UserCircle } from "lucide-react";
 import BottomNav from "./BottomNav";
+import Profile from "./Profile";
 import { useXP } from "@/hooks/useXP";
 
 const AppShell = ({ children }: { children: ReactNode }) => {
   const { xp, rank, dailyStreak } = useXP();
   const location = useLocation();
+  const [profileOpen, setProfileOpen] = useState(false);
   return (
     <div className="min-h-screen bg-sh-bg text-sh-text flex flex-col overflow-x-hidden">
       <header
@@ -20,10 +23,20 @@ const AppShell = ({ children }: { children: ReactNode }) => {
           <span className="text-[11px] text-sh-text">{xp} XP</span>
         </div>
         <h1 className="font-serif text-[20px] font-normal text-sh-text absolute left-1/2 -translate-x-1/2" style={{ top: "calc(50% + env(safe-area-inset-top) / 2)", transform: "translate(-50%, -50%)" }}>Soho Mate</h1>
-        <div className="text-[11px] text-sh-text min-w-[40px] text-right">
-          {dailyStreak > 0 ? `🔥 ${dailyStreak}` : ""}
+        <div className="flex items-center gap-3 min-w-[40px] justify-end">
+          <span className="text-[11px] text-sh-text">
+            {dailyStreak > 0 ? `🔥 ${dailyStreak}` : ""}
+          </span>
+          <button
+            onClick={() => setProfileOpen(true)}
+            aria-label="Open profile"
+            className="flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2"
+          >
+            <UserCircle size={20} color="#6B6560" />
+          </button>
         </div>
       </header>
+      <Profile open={profileOpen} onClose={() => setProfileOpen(false)} />
       <main
         key={location.pathname}
         className="flex-1 overflow-x-hidden"
