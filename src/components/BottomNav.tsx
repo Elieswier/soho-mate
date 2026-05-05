@@ -11,14 +11,21 @@ const tabs = [
 
 const BottomNav = () => {
   return (
-    <nav className="fixed bottom-0 inset-x-0 h-20 bg-sh-bg border-t border-sh-border flex z-40">
+    <nav
+      className="fixed bottom-0 inset-x-0 border-t border-sh-border flex z-40"
+      style={{
+        background: "#FAF8F5",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        height: "calc(80px + env(safe-area-inset-bottom))",
+      }}
+    >
       {tabs.map(({ to, label, Icon, end }) => (
         <NavLink
           key={to}
           to={to}
           end={end}
           className={({ isActive }) =>
-            `flex-1 flex flex-col items-center justify-center gap-1 ${
+            `flex-1 flex flex-col items-center justify-center gap-1 min-h-[44px] ${
               isActive ? "text-sh-text" : "text-sh-muted"
             }`
           }
