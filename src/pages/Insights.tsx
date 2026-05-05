@@ -354,59 +354,6 @@ const Insights = () => {
               </button>
             </>
           )}
-
-          <button
-            onClick={backup}
-            className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-          >
-            Backup all data
-          </button>
-
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-          >
-            Restore backup
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json,application/json"
-            className="hidden"
-            onChange={onRestoreFile}
-          />
-
-          {pendingRestore && (
-            <div className="bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3">
-              <p className="text-[12px] text-sh-text">
-                This will replace all current data. Tap Restore to confirm.
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={confirmRestore}
-                  className="flex-1 py-3 text-[14px] bg-sh-text text-sh-bg rounded-none"
-                >
-                  Restore
-                </button>
-                <button
-                  onClick={() => setPendingRestore(null)}
-                  className="flex-1 py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={async () => {
-              const { supabase } = await import("@/lib/supabase");
-              await supabase.auth.signOut();
-            }}
-            className="text-[11px] text-sh-muted underline self-center mt-2"
-          >
-            Sign out
-          </button>
         </>
       )}
     </div>
