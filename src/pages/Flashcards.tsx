@@ -7,27 +7,57 @@ const categoryLabel = (key: MenuItem["category"]) =>
   CATEGORIES.find((c) => c.key === key)?.label ?? key;
 
 type Lang = "en" | "fr" | "he";
+type Rating = "again" | "almost" | "got";
+type ModeKey = "menu" | "house" | "floor" | "full";
+
+const MODE_CATS: Record<ModeKey, MenuItem["category"][] | "all"> = {
+  menu: ["smalls", "starters", "salads", "mains", "sides", "pizza-sandwiches"],
+  house: ["soho-story", "soho-tlv"],
+  floor: ["waiter"],
+  full: "all",
+};
+
+const MODE_META: Record<ModeKey, { name: string; tip: string }> = {
+  menu: { name: "The Menu", tip: "Describe every dish in 2 sentences." },
+  house: { name: "The House", tip: "Know the story behind the House." },
+  floor: { name: "The Floor", tip: "This is what separates good from great." },
+  full: { name: "Full House", tip: "Your weakest cards come first." },
+};
+
+const itemsForMode = (mode: ModeKey, ratings: Record<number, Rating>): MenuItem[] => {
+  const cats = MODE_CATS[mode];
+  const base = cats === "all" ? MENU_ITEMS : MENU_ITEMS.filter((m) => cats.includes(m.category));
+  if (mode !== "full") return base;
+  const order: Record<string, number> = { again: 0, unrated: 1, almost: 2, got: 3 };
+  return [...base].sort((a, b) => {
+    const ra = ratings[a.id] ?? "unrated";
+    const rb = ratings[b.id] ?? "unrated";
+    return (order[ra] ?? 1) - (order[rb] ?? 1);
+  });
+};
 
 const Flashcards = () => {
-  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [screen, setScreen] = useState<"select" | "start" | "card">("select");
+  const [mode, setMode] = useState<ModeKey>("menu");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [masteredIds, setMasteredIds] = useLocalStorage<number[]>("sh_mastered", []);
+  const [ratings, setRatings] = useLocalStorage<Record<number, Rating>>("sh_ratings", {});
   const [lang, setLang] = useState<Lang>("en");
   const [flash, setFlash] = useState<{ id: number; text: string } | null>(null);
   const { addXP, sessionStreak, incrementSessionStreak, resetSessionStreak, updateDailyStreak } = useXP();
 
-  const filtered = useMemo(
-    () =>
-      activeCategory === "all"
-        ? MENU_ITEMS
-        : MENU_ITEMS.filter((m) => m.category === activeCategory),
-    [activeCategory]
-  );
-
-  const total = filtered.length;
+  const deck = useMemo(() => itemsForMode(mode, ratings), [mode, ratings]);
+  const total = deck.length;
   const safeIndex = total === 0 ? 0 : currentIndex % total;
-  const card = filtered[safeIndex];
+  const card = deck[safeIndex];
+
+  const counts = useMemo(() => ({
+    menu: itemsForMode("menu", {}).length,
+    house: itemsForMode("house", {}).length,
+    floor: itemsForMode("floor", {}).length,
+    full: MENU_ITEMS.length,
+  }), []);
 
   const triggerFlash = (text: string) => {
     const id = Date.now();
@@ -35,85 +65,110 @@ const Flashcards = () => {
     setTimeout(() => setFlash((f) => (f && f.id === id ? null : f)), 800);
   };
 
-  const goNext = () => {
-    setIsFlipped(false);
-    setCurrentIndex((i) => (total === 0 ? 0 : (i + 1) % total));
-  };
-  const goPrev = () => {
-    setIsFlipped(false);
-    setCurrentIndex((i) => (total === 0 ? 0 : (i - 1 + total) % total));
-  };
+  const goNext = () => { setIsFlipped(false); setCurrentIndex((i) => (total === 0 ? 0 : (i + 1) % total)); };
+  const goPrev = () => { setIsFlipped(false); setCurrentIndex((i) => (total === 0 ? 0 : (i - 1 + total) % total)); };
 
-  const handleConfidence = (level: "again" | "almost" | "got") => {
-    if (level === "got" && card && !masteredIds.includes(card.id)) {
+  const handleConfidence = (level: Rating) => {
+    if (!card) return;
+    setRatings({ ...ratings, [card.id]: level });
+    if (level === "got" && !masteredIds.includes(card.id)) {
       setMasteredIds([...masteredIds, card.id]);
     }
     if (level === "got") {
-      addXP(15);
-      incrementSessionStreak();
-      updateDailyStreak();
-      triggerFlash("+15 XP");
+      addXP(15); incrementSessionStreak(); updateDailyStreak(); triggerFlash("+15 XP");
     } else if (level === "almost") {
-      addXP(5);
-      triggerFlash("+5 XP");
+      addXP(5); triggerFlash("+5 XP");
     } else {
-      addXP(2);
-      resetSessionStreak();
-      triggerFlash("+2 XP");
+      addXP(2); resetSessionStreak(); triggerFlash("+2 XP");
     }
     setTimeout(goNext, 250);
   };
 
-  const onCategoryChange = (key: string) => {
-    setActiveCategory(key);
-    setCurrentIndex(0);
-    setIsFlipped(false);
-  };
+  const openMode = (m: ModeKey) => { setMode(m); setScreen("start"); };
+  const startStudying = () => { setCurrentIndex(0); setIsFlipped(false); setScreen("card"); };
+  const backToModes = () => { setScreen("select"); setIsFlipped(false); setCurrentIndex(0); };
 
   const touchStartX = useRef<number | null>(null);
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
+  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 50) {
-      if (dx < 0) goNext();
-      else goPrev();
-    }
+    if (Math.abs(dx) > 50) { if (dx < 0) goNext(); else goPrev(); }
     touchStartX.current = null;
   };
 
   const langs: Lang[] = ["en", "fr", "he"];
 
+  // ── MODE SELECTOR ─────────────────────────────────────────────
+  if (screen === "select") {
+    const modes: ModeKey[] = ["menu", "house", "floor", "full"];
+    return (
+      <div className="px-6 pt-6 max-w-md mx-auto overflow-x-hidden">
+        <h1 className="font-serif text-[32px] text-sh-text leading-tight">Study</h1>
+        <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your deck</p>
+        <div className="grid grid-cols-2 gap-3 mt-6">
+          {modes.map((m) => (
+            <button
+              key={m}
+              onClick={() => openMode(m)}
+              className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px]"
+            >
+              <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
+              <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── START SCREEN ──────────────────────────────────────────────
+  if (screen === "start") {
+    return (
+      <div className="px-6 pt-6 max-w-md mx-auto min-h-[70vh] flex flex-col items-center justify-center text-center overflow-x-hidden">
+        <button
+          onClick={backToModes}
+          aria-label="Back"
+          className="absolute top-16 left-4 text-sh-muted text-[18px] min-h-[44px] min-w-[44px] flex items-center justify-start px-2"
+        >
+          ←
+        </button>
+        <h2 className="font-serif text-[48px] text-sh-text leading-none">{MODE_META[mode].name}</h2>
+        <p className="font-sans text-[13px] text-sh-muted mt-3">{counts[mode]} cards</p>
+        <div className="h-px w-32 bg-sh-border my-5" />
+        <p className="font-sans italic text-[12px] text-sh-muted">{MODE_META[mode].tip}</p>
+        <button
+          onClick={startStudying}
+          className="mt-8 w-full bg-sh-text text-white py-3 text-[14px] font-sans rounded-none min-h-[44px]"
+        >
+          Start studying
+        </button>
+        <button
+          onClick={backToModes}
+          className="mt-3 text-[12px] text-sh-muted font-sans min-h-[44px]"
+        >
+          ← Back
+        </button>
+      </div>
+    );
+  }
+
+  // ── CARD SCREEN ───────────────────────────────────────────────
   return (
     <div className="px-5 pt-4 pb-6 max-w-md mx-auto overflow-x-hidden">
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">
-        {CATEGORIES.map((c) => {
-          const active = activeCategory === c.key;
-          return (
-            <button
-              key={c.key}
-              onClick={() => onCategoryChange(c.key)}
-              className={`shrink-0 px-3 py-1.5 text-[12px] rounded-none border transition-colors ${
-                active
-                  ? "bg-sh-btn text-sh-btn-text border-sh-btn"
-                  : "bg-transparent text-sh-muted border-sh-border"
-              }`}
-            >
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
+      <button
+        onClick={backToModes}
+        aria-label="Back to modes"
+        className="text-sh-muted text-[18px] min-h-[44px] min-w-[44px] flex items-center"
+      >
+        ←
+      </button>
 
-      <div className="mt-5">
+      <div className="mt-3">
         <div className="h-px w-full bg-sh-border relative">
           <div
             className="absolute inset-y-0 left-0 bg-sh-text"
-            style={{
-              width: total === 0 ? "0%" : `${((safeIndex + 1) / total) * 100}%`,
-            }}
+            style={{ width: total === 0 ? "0%" : `${((safeIndex + 1) / total) * 100}%` }}
           />
         </div>
         {sessionStreak > 1 && (
@@ -121,11 +176,7 @@ const Flashcards = () => {
         )}
       </div>
 
-      <div
-        className="mt-6 perspective-1000"
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
+      <div className="mt-6 perspective-1000" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <button
           type="button"
           onClick={() => setIsFlipped((f) => !f)}
@@ -133,7 +184,7 @@ const Flashcards = () => {
           style={{ height: "55vh" }}
         >
           <div
-            className={`relative w-full h-full preserve-3d transition-transform duration-500`}
+            className="relative w-full h-full preserve-3d transition-transform duration-500"
             style={{ transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
           >
             <div className="absolute inset-0 backface-hidden bg-sh-surface border border-sh-border rounded-none flex flex-col overflow-hidden">
@@ -150,26 +201,18 @@ const Flashcards = () => {
                       <div className="absolute inset-0 bg-black/[0.08]" />
                     </div>
                     <div className="h-1/2 p-6 flex flex-col">
-                      <div className="text-[10px] uppercase tracking-widest text-sh-muted">
-                        {categoryLabel(card.category)}
-                      </div>
+                      <div className="text-[10px] uppercase tracking-widest text-sh-muted">{categoryLabel(card.category)}</div>
                       <div className="flex-1 flex items-center justify-center">
-                        <h2 className="font-serif text-[36px] font-normal text-sh-text text-center leading-tight">
-                          {card.name}
-                        </h2>
+                        <h2 className="font-serif text-[36px] font-normal text-sh-text text-center leading-tight">{card.name}</h2>
                       </div>
                       <div className="text-center text-[12px] text-sh-muted">Tap to reveal</div>
                     </div>
                   </>
                 ) : (
                   <div className="h-full p-6 flex flex-col">
-                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">
-                      {categoryLabel(card.category)}
-                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">{categoryLabel(card.category)}</div>
                     <div className="flex-1 flex items-center justify-center">
-                      <h2 className="font-serif text-[24px] font-normal text-sh-text text-center leading-snug">
-                        {card.name}
-                      </h2>
+                      <h2 className="font-serif text-[24px] font-normal text-sh-text text-center leading-snug">{card.name}</h2>
                     </div>
                     <div className="text-center text-[12px] text-sh-muted">Tap to reveal</div>
                   </div>
@@ -181,13 +224,9 @@ const Flashcards = () => {
               {card && (
                 card.str ? (
                   <>
-                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">
-                      {categoryLabel(card.category)}
-                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">{categoryLabel(card.category)}</div>
                     <div className="flex-1 flex flex-col items-center justify-center gap-3 overflow-y-auto">
-                      <p className="text-[13px] text-sh-text text-center leading-relaxed">
-                        {card.ingredients}
-                      </p>
+                      <p className="text-[13px] text-sh-text text-center leading-relaxed">{card.ingredients}</p>
                       {card.allergens.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 justify-center">
                           {card.allergens.map((a) => (
@@ -202,12 +241,7 @@ const Flashcards = () => {
                           ))}
                         </div>
                       )}
-
-                      {/* Language toggle */}
-                      <div
-                        className="flex gap-1.5 mt-1"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <div className="flex gap-1.5 mt-1" onClick={(e) => e.stopPropagation()}>
                         {langs.map((l) => {
                           const active = lang === l;
                           return (
@@ -215,9 +249,7 @@ const Flashcards = () => {
                               key={l}
                               onClick={(e) => { e.stopPropagation(); setLang(l); }}
                               className={`px-2 py-0.5 text-[9px] uppercase tracking-wider rounded-none border ${
-                                active
-                                  ? "bg-sh-btn text-sh-btn-text border-sh-btn"
-                                  : "bg-transparent text-sh-muted border-sh-border"
+                                active ? "bg-sh-btn text-sh-btn-text border-sh-btn" : "bg-transparent text-sh-muted border-sh-border"
                               }`}
                             >
                               {l}
@@ -225,32 +257,21 @@ const Flashcards = () => {
                           );
                         })}
                       </div>
-
                       {lang === "he" ? (
-                        <p className="text-[14px] text-sh-text text-right w-full" dir="rtl">
-                          {card.str.he}
-                        </p>
+                        <p className="text-[14px] text-sh-text text-right w-full" dir="rtl">{card.str.he}</p>
                       ) : (
-                        <p className="font-serif italic text-[15px] text-sh-text text-center leading-snug">
-                          {card.str[lang]}
-                        </p>
+                        <p className="font-serif italic text-[15px] text-sh-text text-center leading-snug">{card.str[lang]}</p>
                       )}
                     </div>
                     {card.pairing && (
-                      <div className="text-center text-[11px] italic text-sh-muted">
-                        Pairs with: {card.pairing}
-                      </div>
+                      <div className="text-center text-[11px] italic text-sh-muted">Pairs with: {card.pairing}</div>
                     )}
                   </>
                 ) : (
                   <div className="h-full flex flex-col">
-                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">
-                      {categoryLabel(card.category)}
-                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-sh-muted">{categoryLabel(card.category)}</div>
                     <div className="flex-1 flex items-center justify-center">
-                      <p className="font-serif text-[20px] text-sh-text text-center leading-snug">
-                        {card.ingredients}
-                      </p>
+                      <p className="font-serif text-[20px] text-sh-text text-center leading-snug">{card.ingredients}</p>
                     </div>
                   </div>
                 )
@@ -260,7 +281,6 @@ const Flashcards = () => {
         </button>
       </div>
 
-      {/* XP buttons */}
       {isFlipped && (
         <div className="mt-5 grid grid-cols-3 gap-2 relative">
           {flash && (
@@ -278,8 +298,8 @@ const Flashcards = () => {
           ].map((b) => (
             <button
               key={b.k}
-              onClick={() => handleConfidence(b.k as "again" | "almost" | "got")}
-              className="py-2.5 text-[13px] text-sh-muted border border-sh-border rounded-none bg-transparent"
+              onClick={() => handleConfidence(b.k as Rating)}
+              className="py-2.5 text-[13px] text-sh-muted border border-sh-border rounded-none bg-transparent min-h-[44px]"
             >
               {b.label}
             </button>
@@ -288,10 +308,17 @@ const Flashcards = () => {
       )}
 
       <div className="mt-6 flex items-center justify-between text-[13px] text-sh-muted">
-        <button onClick={goPrev} className="px-2 py-1">←</button>
+        <button onClick={goPrev} className="px-3 py-2 min-h-[44px] min-w-[44px]">←</button>
         <span>Mastered: {masteredIds.length} / {MENU_ITEMS.length}</span>
-        <button onClick={goNext} className="px-2 py-1">→</button>
+        <button onClick={goNext} className="px-3 py-2 min-h-[44px] min-w-[44px]">→</button>
       </div>
+
+      <button
+        onClick={backToModes}
+        className="mt-3 w-full text-center text-[11px] text-sh-muted font-sans min-h-[44px]"
+      >
+        ← Back to modes
+      </button>
     </div>
   );
 };
