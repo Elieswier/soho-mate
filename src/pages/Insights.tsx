@@ -16,11 +16,6 @@ import { MENU_ITEMS, CATEGORIES } from "@/data/menuData";
 
 const axisTick = { fontSize: 10, fill: "#6B6560", fontFamily: "DM Sans" };
 
-const BACKUP_KEYS = [
-  "sh_shifts", "sh_xp", "sh_streak", "sh_last_study",
-  "sh_mastered", "sh_best_score", "sh_onboarded",
-];
-
 const RANKS = [
   { min: 0, name: "Soho Newcomer" },
   { min: 100, name: "Soho Regular" },
