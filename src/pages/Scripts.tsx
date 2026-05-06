@@ -15,47 +15,200 @@ const SECTIONS: Section[] = [
       },
       {
         badge: "FR",
-        text: `Bonsoir, bienvenue au Soho House.\nJe m'appelle Élie — je vais m'occuper de vous.\nJe vous apporte quelque chose à boire ?`,
+        text: `Bonsoir, bienvenue au Soho House.\nJe m'appelle Élie — je vais m'occuper de vous ce soir.\nJe vous apporte quelque chose à boire ?`,
       },
       {
         badge: "HE",
-        text: `ערב טוב, ברוכים הבאים לסוהו האוס.\nקוראים לי אלי — אני אטפל בכם.\nמה תרצו לשתות?`,
+        text: `ערב טוב, ברוכים הבאים לסוהו האוס.\nקוראים לי אלי — אני אטפל בכם הערב.\nמה תרצו לשתות?`,
       },
     ],
   },
   {
     title: "Wine (most important upsell)",
-    onlyLangs: ["EN"],
     scripts: [
-      { text: `Can I suggest something from the wine list to start?\nWe have some really nice bottles by the glass —\nwhat do you usually enjoy, red or white?` },
-      { text: `That dish pairs really well with a lighter white —\nthe [wine] is a great match, a lot of guests love it.` },
-      { text: `Would a bottle make more sense for the table?\nBetter value and I'll keep your glasses topped up.` },
-      { text: `Can I get you a coffee to finish?\nWe have espresso, cappuccino, flat white —\nand a good selection of digestifs if you fancy one.` },
+      {
+        badge: "EN",
+        text: `Can I suggest something from the wine list to start?\nWe have some really nice bottles by the glass —\nwhat do you usually enjoy, red or white?`,
+      },
+      {
+        badge: "EN",
+        text: `That dish pairs really well with a lighter white —\nthe [wine] is a great match, a lot of guests love it.`,
+      },
+      {
+        badge: "EN",
+        text: `Would a bottle make more sense for the table?\nBetter value and I'll keep your glasses topped up.`,
+      },
+      {
+        badge: "EN",
+        text: `Can I get you a coffee to finish?\nWe have espresso, cappuccino, flat white —\nand a good selection of digestifs if you fancy one.`,
+      },
+      {
+        badge: "FR",
+        text: `Je peux vous suggérer quelque chose de la carte des vins ?\nNous avons de très belles bouteilles au verre —\nvous préférez plutôt le rouge ou le blanc ?`,
+      },
+      {
+        badge: "FR",
+        text: `Ce plat se marie très bien avec un blanc léger —\nle [vin] est un excellent choix, beaucoup de membres l'adorent.`,
+      },
+      {
+        badge: "FR",
+        text: `Une bouteille serait peut-être plus judicieuse pour la table ?\nMeilleur rapport qualité-prix, et je vous tiens les verres bien remplis.`,
+      },
+      {
+        badge: "FR",
+        text: `Un café pour terminer ?\nEspresso, cappuccino, flat white —\net une belle sélection de digestifs si ça vous tente.`,
+      },
+      {
+        badge: "HE",
+        text: `אפשר להמליץ על משהו מרשימת היינות להתחלה ?\nיש לנו בקבוקים מעולים בכוסות —\nמה אתם מעדיפים בדרך כלל, אדום או לבן ?`,
+      },
+      {
+        badge: "HE",
+        text: `המנה הזו מתאימה מאוד עם לבן קליל —\nה[יין] הוא שידוך מצוין, הרבה חברים מאוד אוהבים אותו.`,
+      },
+      {
+        badge: "HE",
+        text: `אולי בקבוק יהיה יותר הגיוני לשולחן ?\nשווה יותר, ואני אדאג שהכוסות תמיד יהיו מלאות.`,
+      },
+      {
+        badge: "HE",
+        text: `קפה לסיום ?\nאספרסו, קפוצ'ינו, פלט וייט —\nויש גם מבחר יפה של דיז'סטיף אם בא לכם.`,
+      },
     ],
   },
   {
     title: "Tapas-style service",
     scripts: [
-      { text: `Feel free to order as you go —\neverything comes out as it's ready.\nTake your time and just wave me over whenever.` },
-      { text: `Can I bring a couple more dishes for the table,\nor are you happy with what you have for now?` },
-      { text: `That one's great for sharing —\nwould you like me to bring an extra plate?` },
-      { text: `How is everything so far?\nCan I bring you anything else while you're settled?` },
+      {
+        badge: "EN",
+        text: `Feel free to order as you go —\neverything comes out as it's ready.\nTake your time and just wave me over whenever.`,
+      },
+      {
+        badge: "EN",
+        text: `Can I bring a couple more dishes for the table,\nor are you happy with what you have for now?`,
+      },
+      {
+        badge: "EN",
+        text: `That one's great for sharing —\nwould you like me to bring an extra plate?`,
+      },
+      {
+        badge: "EN",
+        text: `How is everything so far?\nCan I bring you anything else while you're settled?`,
+      },
+      {
+        badge: "FR",
+        text: `Commandez à votre rythme —\ntout sort au fur et à mesure que c'est prêt.\nPrenez votre temps, faites-moi signe quand vous voulez.`,
+      },
+      {
+        badge: "FR",
+        text: `Je vous apporte quelques plats supplémentaires,\nou vous êtes satisfaits pour l'instant ?`,
+      },
+      {
+        badge: "FR",
+        text: `C'est idéal à partager —\nje vous apporte une assiette supplémentaire ?`,
+      },
+      {
+        badge: "FR",
+        text: `Tout se passe bien ?\nJe peux vous apporter autre chose pendant que vous êtes installés ?`,
+      },
+      {
+        badge: "HE",
+        text: `תזמינו בזמן שלכם —\nהכל יוצא כשמוכן.\nקחו את הזמן, תעשו לי סימן כשתרצו משהו.`,
+      },
+      {
+        badge: "HE",
+        text: `להביא עוד כמה מנות לשולחן,\nאו שאתם בסדר עם מה שיש עכשיו ?`,
+      },
+      {
+        badge: "HE",
+        text: `זה מעולה לשיתוף —\nלהביא צלחת נוספת ?`,
+      },
+      {
+        badge: "HE",
+        text: `הכל בסדר ?\nאפשר להביא עוד משהו בזמן שאתם נינוחים ?`,
+      },
     ],
   },
   {
     title: "Pool & garden",
     scripts: [
-      { text: `Can I get you something cold to drink?\nWe have still and sparkling water,\nfresh juices, and the full wine list.` },
-      { text: `I'll keep an eye on you from here —\njust catch my eye whenever you need anything.` },
-      { text: `A few small plates to share while you're\nby the pool? The [dish] is perfect for this.` },
+      {
+        badge: "EN",
+        text: `Can I get you something cold to drink?\nWe have still and sparkling water,\nfresh juices, and the full wine list.`,
+      },
+      {
+        badge: "EN",
+        text: `I'll keep an eye on you from here —\njust catch my eye whenever you need anything.`,
+      },
+      {
+        badge: "EN",
+        text: `A few small plates to share while you're\nby the pool? The [dish] is perfect for this.`,
+      },
+      {
+        badge: "FR",
+        text: `Je vous apporte quelque chose de frais ?\nNous avons de l'eau plate et gazeuse,\ndes jus frais et la carte des vins complète.`,
+      },
+      {
+        badge: "FR",
+        text: `Je reste dans les parages —\nfaites-moi signe dès que vous avez besoin de quoi que ce soit.`,
+      },
+      {
+        badge: "FR",
+        text: `Quelques petites assiettes à partager au bord de la piscine ?\nLe [plat] est parfait pour ça.`,
+      },
+      {
+        badge: "HE",
+        text: `להביא משהו קר לשתות ?\nיש לנו מים סודה ורגיל,\nמיצים טריים ורשימת יינות מלאה.`,
+      },
+      {
+        badge: "HE",
+        text: `אני כאן בשבילכם —\nתעשו לי סימן בכל פעם שתצטרכו משהו.`,
+      },
+      {
+        badge: "HE",
+        text: `כמה מנות קטנות לשיתוף ליד הבריכה ?\nה[מנה] מושלמת לזה.`,
+      },
     ],
   },
   {
     title: "Recovery",
     scripts: [
-      { text: `I sincerely apologize — let me sort that right now\nand make sure the rest of your time here\nis exactly right.` },
-      { text: `Great question — let me check that for you\nright away.` },
-      { text: `I appreciate your patience — it's coming right up.` },
+      {
+        badge: "EN",
+        text: `I sincerely apologize — let me sort that right now\nand make sure the rest of your time here\nis exactly right.`,
+      },
+      {
+        badge: "EN",
+        text: `Great question — let me check that for you\nright away.`,
+      },
+      {
+        badge: "EN",
+        text: `I appreciate your patience — it's coming right up.`,
+      },
+      {
+        badge: "FR",
+        text: `Je vous présente mes sincères excuses —\nje règle ça immédiatement pour que la suite de votre soirée\nse passe exactement comme il faut.`,
+      },
+      {
+        badge: "FR",
+        text: `Très bonne question —\nlaissez-moi vérifier ça pour vous tout de suite.`,
+      },
+      {
+        badge: "FR",
+        text: `J'apprécie votre patience — c'est en route.`,
+      },
+      {
+        badge: "HE",
+        text: `אני מתנצל בכנות —\nאני מטפל בזה עכשיו כדי שהמשך הערב שלכם\nיהיה בדיוק כפי שצריך להיות.`,
+      },
+      {
+        badge: "HE",
+        text: `שאלה מצוינת —\nתנו לי לבדוק את זה בשבילכם עכשיו.`,
+      },
+      {
+        badge: "HE",
+        text: `תודה על הסבלנות — זה בדרך.`,
+      },
     ],
   },
 ];
