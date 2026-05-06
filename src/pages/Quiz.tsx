@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { UtensilsCrossed, AlertTriangle, Landmark, Layers } from "lucide-react";
 import { QUIZ_QUESTIONS, QuizQuestion, QuizCategory } from "@/data/quizData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
 
 type ModeKey = "menu" | "allergens" | "soho-story" | "full";
 
-const MODE_META: Record<ModeKey, { name: string; cat: QuizCategory | "all" }> = {
-  menu: { name: "The Menu", cat: "menu" },
-  allergens: { name: "Allergens", cat: "allergens" },
-  "soho-story": { name: "The House", cat: "soho-story" },
-  full: { name: "Full House", cat: "all" },
+const MODE_META: Record<ModeKey, { name: string; cat: QuizCategory | "all"; icon: React.ReactNode }> = {
+  menu: { name: "The Menu", cat: "menu", icon: <UtensilsCrossed size={22} strokeWidth={1.5} /> },
+  allergens: { name: "Allergens", cat: "allergens", icon: <AlertTriangle size={22} strokeWidth={1.5} /> },
+  "soho-story": { name: "The House", cat: "soho-story", icon: <Landmark size={22} strokeWidth={1.5} /> },
+  full: { name: "Full House", cat: "all", icon: <Layers size={22} strokeWidth={1.5} /> },
 };
 
 const shuffle = <T,>(arr: T[]): T[] => {
@@ -146,8 +147,11 @@ const Quiz = () => {
                 className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left flex flex-col justify-between"
                 style={{ minHeight: "clamp(80px, 22vw, 260px)" }}
               >
-                <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
-                <div className="font-sans text-[11px] text-sh-muted mt-1">{count} questions</div>
+                <div className="text-sh-muted">{MODE_META[m].icon}</div>
+                <div>
+                  <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
+                  <div className="font-sans text-[11px] text-sh-muted mt-1">{count} questions</div>
+                </div>
               </button>
             );
           })}
