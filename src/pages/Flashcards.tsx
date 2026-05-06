@@ -151,7 +151,7 @@ const Flashcards = () => {
             <div key={m} className="flex flex-col gap-2">
               <button
                 onClick={() => openMode(m)}
-                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px]"
+                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px] md:min-h-[180px] md:flex md:flex-col md:justify-between"
               >
                 <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
                 <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
