@@ -26,8 +26,10 @@ const Auth = () => {
     else toast("Check your email to confirm", { duration: 2500, position: "bottom-center" });
   };
 
+  const inputStyle = { fontSize: 16, WebkitTextSizeAdjust: "100%" as const };
+
   return (
-    <div className="min-h-screen bg-sh-bg flex items-center justify-center px-5">
+    <div className="h-screen min-h-screen overflow-hidden bg-sh-bg flex items-center justify-center px-5">
       <div className="w-full max-w-sm flex flex-col gap-5">
         <h1 className="font-serif text-[48px] text-sh-text text-center leading-none mb-4">
           Soho Mate
@@ -42,7 +44,8 @@ const Auth = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
-            className="w-full px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-none text-sh-text"
+            style={inputStyle}
+            className="w-full px-3 py-2.5 bg-sh-bg border border-sh-border rounded-none text-sh-text"
           />
         </div>
 
@@ -55,7 +58,8 @@ const Auth = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
-            className="w-full px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-none text-sh-text"
+            style={inputStyle}
+            className="w-full px-3 py-2.5 bg-sh-bg border border-sh-border rounded-none text-sh-text"
           />
         </div>
 

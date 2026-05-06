@@ -5,6 +5,7 @@ export type Shift = {
   area?: "Indoor" | "Pool" | "Garden";
   areas: ("Indoor" | "Pool" | "Garden")[];
   type: "Lunch" | "Dinner" | "Event";
+  types: ("Lunch" | "Dinner" | "Event")[];
   startTime: string;
   endTime: string;
   hoursWorked: number;
