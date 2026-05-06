@@ -148,14 +148,21 @@ const Flashcards = () => {
         <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your deck</p>
         <div className="grid grid-cols-2 gap-3 mt-6">
           {modes.map((m) => (
-            <button
-              key={m}
-              onClick={() => openMode(m)}
-              className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px]"
-            >
-              <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
-              <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
-            </button>
+            <div key={m} className="flex flex-col gap-2">
+              <button
+                onClick={() => openMode(m)}
+                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px]"
+              >
+                <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
+                <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
+              </button>
+              <button
+                onClick={() => quizForMode(m)}
+                className="text-[11px] text-sh-muted border border-sh-border rounded-none bg-transparent py-2"
+              >
+                Quiz this deck
+              </button>
+            </div>
           ))}
         </div>
       </div>
