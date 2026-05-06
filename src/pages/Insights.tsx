@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+// note: useEffect/useRef used for shift backup toast; useMemo for stats
 import { toast } from "sonner";
 import {
   BarChart,
@@ -12,36 +13,10 @@ import {
 } from "recharts";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Shift, DAYS } from "@/lib/shifts";
-import { MENU_ITEMS, CATEGORIES } from "@/data/menuData";
+import TrainingPlan from "@/components/TrainingPlan";
 
 const axisTick = { fontSize: 10, fill: "#6B6560", fontFamily: "DM Sans" };
 
-const RANKS = [
-  { min: 0, name: "Soho Newcomer" },
-  { min: 100, name: "Soho Regular" },
-  { min: 300, name: "Soho Insider" },
-  { min: 600, name: "Soho Veteran" },
-  { min: 1000, name: "Soho Mate" },
-];
-
-const rankInfo = (xp: number) => {
-  let current = RANKS[0];
-  let next: typeof RANKS[number] | null = null;
-  for (let i = 0; i < RANKS.length; i++) {
-    if (xp >= RANKS[i].min) {
-      current = RANKS[i];
-      next = RANKS[i + 1] ?? null;
-    }
-  }
-  return { current, next };
-};
-
-const StatCard = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-sh-surface border border-sh-border rounded-none p-3 text-center">
-    <div className="text-[10px] uppercase tracking-widest text-sh-muted">{label}</div>
-    <div className="font-serif text-[28px] text-sh-text leading-tight mt-1">{value}</div>
-  </div>
-);
 
 const ShiftStat = ({ label, value }: { label: string; value: string }) => (
   <div className="bg-sh-surface border border-sh-border rounded-none p-3 text-center flex-1">
@@ -51,12 +26,8 @@ const ShiftStat = ({ label, value }: { label: string; value: string }) => (
 );
 
 const Insights = () => {
-  const [tab, setTab] = useState<"progress" | "shifts">("progress");
+  const [tab, setTab] = useState<"training" | "shifts">("training");
   const [shifts] = useLocalStorage<Shift[]>("sh_shifts", []);
-  const [xp] = useLocalStorage<number>("sh_xp", 0);
-  const [streak] = useLocalStorage<number>("sh_streak", 0);
-  const [mastered] = useLocalStorage<number[]>("sh_mastered", []);
-  const [bestScore] = useLocalStorage<number>("sh_best_score", 0);
 
   const prevCountRef = useRef<number | null>(null);
 
@@ -138,37 +109,12 @@ const Insights = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Progress tab derived
-  const { current: rank, next } = rankInfo(xp);
-  const rangeStart = rank.min;
-  const rangeEnd = next ? next.min : rank.min;
-  const progressPct = next ? Math.min(100, Math.max(0, ((xp - rangeStart) / (rangeEnd - rangeStart)) * 100)) : 100;
-  const progressLabel = next
-    ? `${xp} XP → ${next.min} XP to reach ${next.name}`
-    : `${xp} XP — top rank reached`;
-
-  const studySessions = Math.max(0, Math.floor(xp / 15));
-
-  const weakest = useMemo(() => {
-    if (!mastered || mastered.length === 0) return null;
-    const cats = CATEGORIES.filter((c) => c.key !== "all");
-    let worst: { label: string; pct: number } | null = null;
-    cats.forEach((c) => {
-      const items = MENU_ITEMS.filter((m) => m.category === c.key);
-      if (items.length === 0) return;
-      const masteredCount = items.filter((m) => mastered.includes(m.id)).length;
-      const pct = masteredCount / items.length;
-      if (worst === null || pct < worst.pct) worst = { label: c.label, pct };
-    });
-    return worst;
-  }, [mastered]);
-
   return (
     <div className="px-5 pt-4 pb-8 max-w-md mx-auto flex flex-col gap-5">
       {/* Tabs */}
       <div className="flex">
         {([
-          ["progress", "My Progress"],
+          ["training", "Training"],
           ["shifts", "My Shifts"],
         ] as const).map(([key, label]) => {
           const active = tab === key;
@@ -188,38 +134,7 @@ const Insights = () => {
         })}
       </div>
 
-      {tab === "progress" && (
-        <>
-          {/* Rank card */}
-          <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-            <div className="font-serif text-[32px] text-sh-text leading-tight">{rank.name}</div>
-            <div className="mt-3 h-1 w-full bg-sh-border rounded-none">
-              <div className="h-full bg-sh-text" style={{ width: `${progressPct}%` }} />
-            </div>
-            <div className="mt-2 text-[11px] text-sh-muted">{progressLabel}</div>
-          </div>
-
-          {/* 2x2 stat grid */}
-          <div className="grid grid-cols-2 gap-2">
-            <StatCard label="Daily streak" value={`🔥 ${streak} days`} />
-            <StatCard label="Best quiz score" value={`${bestScore} / 15`} />
-            <StatCard label="Cards mastered" value={`${(mastered || []).length} / 57`} />
-            <StatCard label="Study sessions" value={`${studySessions}`} />
-          </div>
-
-          {/* Weakest category */}
-          <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-            <div className="text-[10px] uppercase tracking-widest text-sh-muted">Focus tonight:</div>
-            {weakest ? (
-              <div className="font-serif text-[20px] text-sh-text mt-1">{weakest.label}</div>
-            ) : (
-              <div className="font-serif text-[18px] text-sh-muted mt-1">
-                Complete a quiz to see insights
-              </div>
-            )}
-          </div>
-        </>
-      )}
+      {tab === "training" && <TrainingPlan />}
 
       {tab === "shifts" && (
         <>
