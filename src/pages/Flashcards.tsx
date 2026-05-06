@@ -143,10 +143,10 @@ const Flashcards = () => {
   if (screen === "select") {
     const modes: ModeKey[] = ["menu", "house", "floor", "full"];
     return (
-      <div className="px-6 pt-6 pb-28 max-w-md mx-auto overflow-x-hidden">
+      <div className="px-6 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
         <h1 className="font-serif text-[32px] text-sh-text leading-tight">Study</h1>
         <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your deck</p>
-        <div className="grid grid-cols-2 gap-3 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
           {modes.map((m) => (
             <div key={m} className="flex flex-col gap-2">
               <button
@@ -202,7 +202,7 @@ const Flashcards = () => {
 
   // ── CARD SCREEN ───────────────────────────────────────────────
   return (
-    <div className="px-5 pt-4 pb-28 max-w-md mx-auto overflow-x-hidden">
+    <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
       <button
         onClick={backToModes}
         aria-label="Back to modes"

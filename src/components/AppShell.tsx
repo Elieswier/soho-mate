@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { UserCircle } from "lucide-react";
 import BottomNav from "./BottomNav";
+import SideNav from "./SideNav";
 import Profile from "./Profile";
 import { useXP } from "@/hooks/useXP";
 
@@ -9,42 +10,59 @@ const AppShell = ({ children }: { children: ReactNode }) => {
   const { xp, rank, dailyStreak } = useXP();
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
+
   return (
-    <div className="h-[100dvh] bg-sh-bg text-sh-text flex flex-col overflow-hidden">
-      <header
-        className="fixed top-0 inset-x-0 bg-sh-bg border-b border-sh-border flex items-center justify-between px-4 z-40"
-        style={{
-          height: "calc(56px + env(safe-area-inset-top))",
-          paddingTop: "env(safe-area-inset-top)",
-        }}
-      >
-        <div className="flex flex-col leading-tight min-w-0">
-          <span className="text-[10px] uppercase tracking-wider text-sh-muted truncate">{rank}</span>
-          <span className="text-[11px] text-sh-text">{xp} XP</span>
-        </div>
-        <h1 className="font-serif text-[20px] font-normal text-sh-text absolute left-1/2 -translate-x-1/2" style={{ top: "calc(50% + env(safe-area-inset-top) / 2)", transform: "translate(-50%, -50%)" }}>Soho Mate</h1>
-        <div className="flex items-center gap-3 min-w-[40px] justify-end">
-          <span className="text-[11px] text-sh-text">
-            {dailyStreak > 0 ? `🔥 ${dailyStreak}` : ""}
-          </span>
-          <button
-            onClick={() => setProfileOpen(true)}
-            aria-label="Open profile"
-            className="flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2"
+    <div className="h-[100dvh] bg-sh-bg text-sh-text flex overflow-hidden">
+      {/* Desktop sidebar */}
+      <SideNav onProfileOpen={() => setProfileOpen(true)} />
+
+      {/* Main column */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Mobile header — hidden on desktop */}
+        <header
+          className="md:hidden fixed top-0 inset-x-0 bg-sh-bg border-b border-sh-border flex items-center justify-between px-4 z-40"
+          style={{
+            height: "calc(56px + env(safe-area-inset-top))",
+            paddingTop: "env(safe-area-inset-top)",
+          }}
+        >
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[10px] uppercase tracking-wider text-sh-muted truncate">{rank}</span>
+            <span className="text-[11px] text-sh-text">{xp} XP</span>
+          </div>
+          <h1
+            className="font-serif text-[20px] font-normal text-sh-text absolute left-1/2"
+            style={{ top: "calc(50% + env(safe-area-inset-top) / 2)", transform: "translate(-50%, -50%)" }}
           >
-            <UserCircle size={20} color="#6B6560" />
-          </button>
-        </div>
-      </header>
-      <Profile open={profileOpen} onClose={() => setProfileOpen(false)} />
-      <main
-        key={location.pathname}
-        className="flex-1 overflow-y-auto overflow-x-hidden"
-        style={{ paddingTop: "calc(56px + env(safe-area-inset-top))" }}
-      >
-        {children}
-      </main>
-      <BottomNav />
+            Soho Mate
+          </h1>
+          <div className="flex items-center gap-3 min-w-[40px] justify-end">
+            <span className="text-[11px] text-sh-text">
+              {dailyStreak > 0 ? `🔥 ${dailyStreak}` : ""}
+            </span>
+            <button
+              onClick={() => setProfileOpen(true)}
+              aria-label="Open profile"
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2"
+            >
+              <UserCircle size={20} color="#6B6560" />
+            </button>
+          </div>
+        </header>
+
+        <Profile open={profileOpen} onClose={() => setProfileOpen(false)} />
+
+        {/* Scrollable content */}
+        <main
+          key={location.pathname}
+          className="flex-1 overflow-y-auto overflow-x-hidden pt-[calc(56px+env(safe-area-inset-top))] md:pt-0"
+        >
+          {children}
+        </main>
+
+        {/* Mobile bottom nav — hidden on desktop */}
+        <BottomNav />
+      </div>
     </div>
   );
 };

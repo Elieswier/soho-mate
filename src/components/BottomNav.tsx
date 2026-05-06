@@ -12,7 +12,7 @@ const tabs = [
 const BottomNav = () => {
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 border-t border-sh-border flex z-40"
+      className="md:hidden fixed bottom-0 inset-x-0 border-t border-sh-border flex z-40"
       style={{
         background: "#FAF8F5",
         paddingBottom: "env(safe-area-inset-bottom)",

@@ -103,7 +103,7 @@ const Scripts = () => {
   };
 
   return (
-    <div className="px-5 pt-4 pb-28 max-w-md mx-auto flex flex-col gap-6">
+    <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl mx-auto md:px-10 flex flex-col gap-6">
       <div className="flex gap-2">
         {langs.map((l) => {
           const active = l === lang;
