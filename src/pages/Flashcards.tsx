@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MENU_ITEMS, CATEGORIES, MenuItem } from "@/data/menuData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
@@ -37,6 +38,7 @@ const itemsForMode = (mode: ModeKey, ratings: Record<number, Rating>): MenuItem[
 };
 
 const Flashcards = () => {
+  const navigate = useNavigate();
   const [screen, setScreen] = useState<"select" | "start" | "card">("select");
   const [mode, setMode] = useState<ModeKey>("menu");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -45,7 +47,8 @@ const Flashcards = () => {
   const [ratings, setRatings] = useLocalStorage<Record<number, Rating>>("sh_ratings", {});
   const [lang, setLang] = useState<Lang>("en");
   const [flash, setFlash] = useState<{ id: number; text: string } | null>(null);
-  const { addXP, sessionStreak, incrementSessionStreak, resetSessionStreak, updateDailyStreak } = useXP();
+  const [sessionRated, setSessionRated] = useState<Record<number, Rating>>({});
+  const { addXP, sessionStreak, incrementSessionStreak, resetSessionStreak, awardDailyBonus } = useXP();
 
   const deck = useMemo(() => itemsForMode(mode, ratings), [mode, ratings]);
   const total = deck.length;
@@ -74,19 +77,56 @@ const Flashcards = () => {
     if (level === "got" && !masteredIds.includes(card.id)) {
       setMasteredIds([...masteredIds, card.id]);
     }
+
+    const nextSession = { ...sessionRated, [card.id]: level };
+    setSessionRated(nextSession);
+
+    let parts: string[] = [];
+
     if (level === "got") {
-      addXP(15); incrementSessionStreak(); updateDailyStreak(); triggerFlash("+15 XP");
-    } else if (level === "almost") {
-      addXP(5); triggerFlash("+5 XP");
+      const newStreak = sessionStreak + 1;
+      incrementSessionStreak();
+      let amount = 10;
+      if (newStreak >= 5 && newStreak % 5 === 0) amount = 25;
+      else if (newStreak >= 3 && newStreak % 3 === 0) amount = 15;
+      addXP(amount);
+      parts.push(`+${amount} XP`);
+      const bonus = awardDailyBonus();
+      if (bonus) parts.push(`+${bonus} daily`);
+    } else if (level === "again") {
+      resetSessionStreak();
     } else {
-      addXP(2); resetSessionStreak(); triggerFlash("+2 XP");
+      // almost — no XP
     }
+
+    // Full-deck completion with no "again"
+    const ratedIds = Object.keys(nextSession).map(Number);
+    const deckIds = deck.map((d) => d.id);
+    const allRated = deckIds.every((id) => ratedIds.includes(id));
+    const noAgain = deckIds.every((id) => nextSession[id] !== "again");
+    if (allRated && noAgain && deckIds.length > 0) {
+      addXP(50);
+      parts.push("+50 perfect deck");
+      setSessionRated({});
+    }
+
+    if (parts.length) triggerFlash(parts.join(" · "));
     setTimeout(goNext, 250);
   };
 
   const openMode = (m: ModeKey) => { setMode(m); setScreen("start"); };
-  const startStudying = () => { setCurrentIndex(0); setIsFlipped(false); setScreen("card"); };
+  const startStudying = () => { setCurrentIndex(0); setIsFlipped(false); setSessionRated({}); setScreen("card"); };
   const backToModes = () => { setScreen("select"); setIsFlipped(false); setCurrentIndex(0); };
+
+  const quizForMode = (m: ModeKey) => {
+    const map: Record<ModeKey, string> = {
+      menu: "menu",
+      house: "soho-story",
+      floor: "full",
+      full: "full",
+    };
+    navigate(`/quiz?cat=${map[m]}`);
+  };
 
   const touchStartX = useRef<number | null>(null);
   const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
@@ -108,14 +148,21 @@ const Flashcards = () => {
         <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your deck</p>
         <div className="grid grid-cols-2 gap-3 mt-6">
           {modes.map((m) => (
-            <button
-              key={m}
-              onClick={() => openMode(m)}
-              className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px]"
-            >
-              <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
-              <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
-            </button>
+            <div key={m} className="flex flex-col gap-2">
+              <button
+                onClick={() => openMode(m)}
+                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px]"
+              >
+                <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
+                <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
+              </button>
+              <button
+                onClick={() => quizForMode(m)}
+                className="text-[11px] text-sh-muted border border-sh-border rounded-none bg-transparent py-2"
+              >
+                Quiz this deck
+              </button>
+            </div>
           ))}
         </div>
       </div>
