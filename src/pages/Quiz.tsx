@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { UtensilsCrossed, AlertTriangle, Landmark, Layers } from "lucide-react";
 import { QUIZ_QUESTIONS, QuizQuestion, QuizCategory } from "@/data/quizData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
+import type { DayProgress } from "@/data/trainingPlan";
 
 type ModeKey = "menu" | "allergens" | "soho-story" | "full";
 
@@ -29,10 +30,14 @@ const questionsForMode = (m: ModeKey): QuizQuestion[] => {
 };
 
 const Quiz = () => {
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
+  const fromTraining = params.get("from") === "training";
+  const trainingDay = Number(params.get("day") ?? "0");
   const [screen, setScreen] = useState<"select" | "quiz">("select");
   const [mode, setMode] = useState<ModeKey>("menu");
   const [sessionKey, setSessionKey] = useState(0);
+  const [allTrainingProgress, setAllTrainingProgress] = useLocalStorage<Record<string, DayProgress>>("sh_training", {});
 
   const questions = useMemo<QuizQuestion[]>(
     () => shuffle(questionsForMode(mode)),
@@ -102,6 +107,14 @@ const Quiz = () => {
       if (finalScore === total && total > 0) {
         const amount = awardPerfectQuiz();
         triggerFlash(`Perfect! +${amount} XP`);
+      }
+      // Auto-mark quiz done in training plan if ≥ 70%
+      if (fromTraining && trainingDay > 0 && total > 0 && finalScore / total >= 0.7) {
+        setAllTrainingProgress((prev) => {
+          const key = String(trainingDay);
+          const existing = prev[key] ?? { flashcards: false, quiz: false, script: false, checklist: [] };
+          return { ...prev, [key]: { ...existing, quiz: true } };
+        });
       }
       setDone(true);
       return;
@@ -183,12 +196,21 @@ const Quiz = () => {
         >
           Retake quiz
         </button>
-        <button
-          onClick={backToSelect}
-          className="mt-3 w-full text-[12px] text-sh-muted font-sans min-h-[44px]"
-        >
-          ← Back to modes
-        </button>
+        {fromTraining ? (
+          <button
+            onClick={() => navigate("/insights")}
+            className="mt-3 w-full py-3 text-[14px] bg-sh-btn text-sh-btn-text rounded-none"
+          >
+            ← Back to training
+          </button>
+        ) : (
+          <button
+            onClick={backToSelect}
+            className="mt-3 w-full text-[12px] text-sh-muted font-sans min-h-[44px]"
+          >
+            ← Back to modes
+          </button>
+        )}
       </div>
     );
   }
@@ -198,11 +220,11 @@ const Quiz = () => {
   return (
     <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden relative">
       <button
-        onClick={backToSelect}
+        onClick={fromTraining ? () => navigate("/insights") : backToSelect}
         aria-label="Back"
-        className="text-sh-muted text-[18px] min-h-[44px] min-w-[44px] flex items-center"
+        className="text-sh-muted text-[13px] min-h-[44px] flex items-center gap-1"
       >
-        ←
+        ← {fromTraining ? "Training" : "Modes"}
       </button>
       {flash && (
         <div

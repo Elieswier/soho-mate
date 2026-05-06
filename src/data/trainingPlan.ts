@@ -13,11 +13,13 @@ export type TrainingDayData = {
     label: string;
     description: string;
     category: string;
+    mode: "menu" | "house" | "floor" | "full";
   };
   quiz: {
     label: string;
     description: string;
     category: string;
+    mode: "menu" | "allergens" | "soho-story" | "full";
   };
   script: {
     title: string;
@@ -35,11 +37,13 @@ export const TRAINING_PLAN: TrainingDayData[] = [
       label: "TLV House deck",
       description: "8 cards — location, spaces, bedrooms, and the House philosophy",
       category: "soho-tlv",
+      mode: "house",
     },
     quiz: {
       label: "Soho Story quiz",
       description: "History, global presence, and TLV-specific knowledge",
       category: "soho-story",
+      mode: "soho-story",
     },
     script: {
       title: "The Greeting",
@@ -60,11 +64,13 @@ export const TRAINING_PLAN: TrainingDayData[] = [
       label: "Smalls + Starters deck",
       description: "9 cards — the opening dishes you'll describe to every table",
       category: "smalls",
+      mode: "menu",
     },
     quiz: {
       label: "Menu quiz",
       description: "Ingredients, allergens, and dietary categories for smalls and starters",
       category: "menu",
+      mode: "menu",
     },
     script: {
       title: "Tapas-style service",
@@ -85,11 +91,13 @@ export const TRAINING_PLAN: TrainingDayData[] = [
       label: "Salads + Sides deck",
       description: "9 cards — 4 salads and 5 sides with full allergen profiles",
       category: "salads",
+      mode: "menu",
     },
     quiz: {
       label: "Allergens quiz",
       description: "Identify allergens across the menu — no guessing allowed",
       category: "allergens",
+      mode: "allergens",
     },
     script: {
       title: "60-second check-in",
@@ -110,11 +118,13 @@ export const TRAINING_PLAN: TrainingDayData[] = [
       label: "Mains deck",
       description: "7 cards — every main with ingredients, allergens and pairing",
       category: "mains",
+      mode: "menu",
     },
     quiz: {
       label: "Menu quiz",
       description: "Mains-focused: ingredients, allergens, and plant-based options",
       category: "menu",
+      mode: "menu",
     },
     script: {
       title: "Wine upsell",
@@ -135,11 +145,13 @@ export const TRAINING_PLAN: TrainingDayData[] = [
       label: "Pizza & Sandwiches deck",
       description: "6 cards — pizzas, burgers, sandwiches with key allergens",
       category: "pizza-sandwiches",
+      mode: "menu",
     },
     quiz: {
       label: "Allergens quiz",
       description: "Full allergen deep-dive — this is what protects your guests",
       category: "allergens",
+      mode: "allergens",
     },
     script: {
       title: "Recovery script",
@@ -160,11 +172,13 @@ export const TRAINING_PLAN: TrainingDayData[] = [
       label: "Soho Story deck",
       description: "10 cards — the story members love to hear",
       category: "soho-story",
+      mode: "house",
     },
     quiz: {
       label: "Soho Story quiz",
       description: "History, global facts, and TLV details",
       category: "soho-story",
+      mode: "soho-story",
     },
     script: {
       title: "Pool & garden service",
@@ -185,11 +199,13 @@ export const TRAINING_PLAN: TrainingDayData[] = [
       label: "Service deck",
       description: "8 cards — the craft of being the best waiter in the room",
       category: "waiter",
+      mode: "floor",
     },
     quiz: {
-      label: "Service quiz",
-      description: "Service scenarios, recovery, and member handling",
+      label: "Full House quiz",
+      description: "Service scenarios, recovery, and member handling — everything",
       category: "service",
+      mode: "full",
     },
     script: {
       title: "Farewell",

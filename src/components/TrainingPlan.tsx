@@ -178,8 +178,8 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
   const done = countDone(progress, dayData.checklist.length);
   const total = totalActivities(dayData);
 
-  const flashcardLink = `/?cat=${dayData.flashcard.category}`;
-  const quizLink = `/quiz?cat=${dayData.quiz.category}`;
+  const flashcardLink = `/?mode=${dayData.flashcard.mode}&from=training&day=${dayData.day}`;
+  const quizLink = `/quiz?cat=${dayData.quiz.mode}&from=training&day=${dayData.day}`;
 
   return (
     <div className="flex flex-col gap-4">

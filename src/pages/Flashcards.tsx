@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { MENU_ITEMS, CATEGORIES, MenuItem } from "@/data/menuData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
@@ -39,8 +39,20 @@ const itemsForMode = (mode: ModeKey, ratings: Record<number, Rating>): MenuItem[
 
 const Flashcards = () => {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const fromTraining = params.get("from") === "training";
   const [screen, setScreen] = useState<"select" | "start" | "card">("select");
   const [mode, setMode] = useState<ModeKey>("menu");
+
+  // Auto-start from training plan deep-link
+  useEffect(() => {
+    const m = params.get("mode") as ModeKey | null;
+    if (m && (m === "menu" || m === "house" || m === "floor" || m === "full")) {
+      setMode(m);
+      setScreen("card");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [masteredIds, setMasteredIds] = useLocalStorage<number[]>("sh_mastered", []);
@@ -116,7 +128,10 @@ const Flashcards = () => {
 
   const openMode = (m: ModeKey) => { setMode(m); setScreen("start"); };
   const startStudying = () => { setCurrentIndex(0); setIsFlipped(false); setSessionRated({}); setScreen("card"); };
-  const backToModes = () => { setScreen("select"); setIsFlipped(false); setCurrentIndex(0); };
+  const backToModes = () => {
+    if (fromTraining) { navigate("/insights"); return; }
+    setScreen("select"); setIsFlipped(false); setCurrentIndex(0);
+  };
 
   const quizForMode = (m: ModeKey) => {
     const map: Record<ModeKey, string> = {
@@ -206,10 +221,10 @@ const Flashcards = () => {
     <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
       <button
         onClick={backToModes}
-        aria-label="Back to modes"
-        className="text-sh-muted text-[18px] min-h-[44px] min-w-[44px] flex items-center"
+        aria-label="Back"
+        className="text-sh-muted text-[13px] min-h-[44px] flex items-center gap-1"
       >
-        ←
+        ← {fromTraining ? "Training" : "Decks"}
       </button>
 
       <div className="mt-3">
