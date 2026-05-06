@@ -144,16 +144,17 @@ const Flashcards = () => {
     const modes: ModeKey[] = ["menu", "house", "floor", "full"];
     return (
       <div className="px-6 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
-        <h1 className="font-serif text-[32px] text-sh-text leading-tight">Study</h1>
+        <h1 className="font-serif text-[32px] md:text-[48px] text-sh-text leading-tight">Study</h1>
         <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your deck</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
           {modes.map((m) => (
             <div key={m} className="flex flex-col gap-2">
               <button
                 onClick={() => openMode(m)}
-                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px] md:min-h-[180px] md:flex md:flex-col md:justify-between"
+                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left flex flex-col justify-between"
+                style={{ minHeight: "clamp(80px, 22vw, 260px)" }}
               >
-                <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
+                <div className="font-serif text-[22px] md:text-[28px] text-sh-text leading-tight">{MODE_META[m].name}</div>
                 <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
               </button>
               <button

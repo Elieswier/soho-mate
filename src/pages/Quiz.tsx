@@ -143,7 +143,8 @@ const Quiz = () => {
               <button
                 key={m}
                 onClick={() => startMode(m)}
-                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left min-h-[44px] md:min-h-[180px] md:flex md:flex-col md:justify-between"
+                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left flex flex-col justify-between"
+                style={{ minHeight: "clamp(80px, 22vw, 260px)" }}
               >
                 <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
                 <div className="font-sans text-[11px] text-sh-muted mt-1">{count} questions</div>
