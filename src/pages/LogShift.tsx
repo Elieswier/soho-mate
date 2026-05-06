@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { Shift, HOURLY_RATE, DAYS, calcHours } from "@/lib/shifts";
+import { Shift, DAYS, calcHours } from "@/lib/shifts";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
@@ -29,6 +29,7 @@ const Pill = ({
 
 const LogShift = () => {
   const [shifts, setShifts] = useLocalStorage<Shift[]>("sh_shifts", []);
+  const [hourlyRate] = useLocalStorage<number>("sh_hourly_rate", 50);
 
   const [date, setDate] = useState(todayISO());
   const [areas, setAreas] = useState<Shift["areas"]>(["Indoor"]);
@@ -41,7 +42,7 @@ const LogShift = () => {
   const [notes, setNotes] = useState("");
 
   const hours = useMemo(() => calcHours(startTime, endTime), [startTime, endTime]);
-  const basePay = Math.round(hours * HOURLY_RATE);
+  const basePay = Math.round(hours * hourlyRate);
   const tipsNum = Number(tips) || 0;
   const total = basePay + tipsNum;
 
