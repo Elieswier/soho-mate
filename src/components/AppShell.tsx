@@ -10,7 +10,7 @@ const AppShell = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const [profileOpen, setProfileOpen] = useState(false);
   return (
-    <div className="min-h-screen bg-sh-bg text-sh-text flex flex-col overflow-x-hidden">
+    <div className="h-[100dvh] bg-sh-bg text-sh-text flex flex-col overflow-hidden">
       <header
         className="fixed top-0 inset-x-0 bg-sh-bg border-b border-sh-border flex items-center justify-between px-4 z-40"
         style={{
@@ -39,7 +39,7 @@ const AppShell = ({ children }: { children: ReactNode }) => {
       <Profile open={profileOpen} onClose={() => setProfileOpen(false)} />
       <main
         key={location.pathname}
-        className="flex-1 overflow-x-hidden"
+        className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{ paddingTop: "calc(56px + env(safe-area-inset-top))" }}
       >
         {children}

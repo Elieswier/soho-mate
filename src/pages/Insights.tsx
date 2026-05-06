@@ -110,7 +110,7 @@ const Insights = () => {
   };
 
   return (
-    <div className="px-5 pt-4 pb-8 max-w-md mx-auto flex flex-col gap-5">
+    <div className="px-5 pt-4 pb-28 max-w-md mx-auto flex flex-col gap-5">
       {/* Tabs */}
       <div className="flex">
         {([

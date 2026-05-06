@@ -83,7 +83,7 @@ const LogShift = () => {
   const recent = shifts.slice(0, 3);
 
   return (
-    <div className="px-5 pt-4 pb-8 max-w-md mx-auto flex flex-col gap-5">
+    <div className="px-5 pt-4 pb-28 max-w-md mx-auto flex flex-col gap-5">
       {/* Date */}
       <div>
         <label className="block text-[10px] uppercase tracking-widest text-sh-muted mb-2">Date</label>

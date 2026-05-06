@@ -133,7 +133,7 @@ const Quiz = () => {
   if (screen === "select") {
     const modes: ModeKey[] = ["menu", "allergens", "soho-story", "full"];
     return (
-      <div className="px-6 pt-6 max-w-md mx-auto overflow-x-hidden">
+      <div className="px-6 pt-6 pb-28 max-w-md mx-auto overflow-x-hidden">
         <h1 className="font-serif text-[32px] text-sh-text leading-tight">Quiz</h1>
         <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your focus</p>
         <div className="grid grid-cols-2 gap-3 mt-6">
@@ -164,7 +164,7 @@ const Quiz = () => {
         : "Back to the flashcards — you've got this.";
 
     return (
-      <div className="px-5 pt-10 pb-8 max-w-md mx-auto flex flex-col items-center text-center">
+      <div className="px-5 pt-10 pb-28 max-w-md mx-auto flex flex-col items-center text-center">
         <div className="font-serif text-[64px] leading-none text-sh-text">
           {score} / {total}
         </div>
@@ -191,7 +191,7 @@ const Quiz = () => {
   const answered = selected !== null;
 
   return (
-    <div className="px-5 pt-4 pb-6 max-w-md mx-auto overflow-x-hidden relative">
+    <div className="px-5 pt-4 pb-28 max-w-md mx-auto overflow-x-hidden relative">
       <button
         onClick={backToSelect}
         aria-label="Back"
