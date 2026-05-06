@@ -110,7 +110,7 @@ const LogShift = () => {
         <label className="block text-[10px] uppercase tracking-widest text-sh-muted mb-2">Shift type</label>
         <div className="flex gap-2">
           {(["Lunch", "Dinner", "Event"] as const).map((t) => (
-            <Pill key={t} active={type === t} onClick={() => setType(t)}>{t}</Pill>
+            <Pill key={t} active={types.includes(t)} onClick={() => toggleType(t)}>{t}</Pill>
           ))}
         </div>
       </div>
