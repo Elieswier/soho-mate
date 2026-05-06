@@ -26,6 +26,20 @@ const Auth = () => {
     else toast("Check your email to confirm", { duration: 2500, position: "bottom-center" });
   };
 
+  const forgotPassword = async () => {
+    if (!email) {
+      toast("Enter your email first", { duration: 2000, position: "bottom-center" });
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    });
+    setLoading(false);
+    if (error) toast(error.message, { duration: 2500, position: "bottom-center" });
+    else toast("Reset link sent — check your email", { duration: 3000, position: "bottom-center" });
+  };
+
   const inputStyle = { fontSize: 16, WebkitTextSizeAdjust: "100%" as const };
 
   return (
@@ -50,9 +64,19 @@ const Auth = () => {
         </div>
 
         <div>
-          <label className="block text-[10px] uppercase tracking-widest text-sh-muted mb-2">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-[10px] uppercase tracking-widest text-sh-muted">
+              Password
+            </label>
+            <button
+              type="button"
+              onClick={forgotPassword}
+              disabled={loading}
+              className="text-[10px] text-sh-muted underline underline-offset-2 disabled:opacity-50"
+            >
+              Forgot password?
+            </button>
+          </div>
           <input
             type="password"
             value={password}
@@ -68,7 +92,7 @@ const Auth = () => {
           disabled={loading || !email || !password}
           className="w-full py-3 text-[14px] bg-sh-btn text-sh-btn-text rounded-none disabled:opacity-50"
         >
-          Sign in
+          Log in
         </button>
 
         <button

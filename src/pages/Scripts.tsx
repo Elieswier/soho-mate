@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { ChevronDown, Copy } from "lucide-react";
 
 type Lang = "EN" | "FR" | "HE";
 type Script = { text: string; badge?: string };
@@ -216,34 +217,88 @@ const SECTIONS: Section[] = [
 const ALLERGENS = ["Gluten", "Dairy", "Fish", "Crustaceans", "Egg", "Sesame", "Soya", "Mustard"];
 
 const ScriptCard = ({ script }: { script: Script }) => {
-  const handleCopy = async () => {
+  const [expanded, setExpanded] = useState(false);
+  const isHebrew = script.badge === "HE";
+  const lines = script.text.split("\n");
+  const preview = lines[0];
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       await navigator.clipboard.writeText(script.text);
-      toast("Copied", { duration: 1500, position: "bottom-center" });
+      toast("Copied", { duration: 1200, position: "bottom-center" });
     } catch {
-      toast("Copy failed", { duration: 1500, position: "bottom-center" });
+      toast("Copy failed", { duration: 1200, position: "bottom-center" });
     }
   };
 
-  const isHebrew = script.badge === "HE";
+  return (
+    <div className="bg-sh-surface border border-sh-border border-l-2 border-l-sh-text rounded-none">
+      <button
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full text-left p-3 flex items-start justify-between gap-2"
+      >
+        <p
+          className="font-serif text-[15px] italic text-sh-text leading-snug flex-1"
+          style={{ direction: isHebrew ? "rtl" : "ltr" }}
+        >
+          {preview}{lines.length > 1 && !expanded ? " …" : ""}
+        </p>
+        <ChevronDown
+          size={14}
+          strokeWidth={1.5}
+          className={`flex-shrink-0 mt-0.5 text-sh-muted transition-transform ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {expanded && (
+        <div className="px-3 pb-3 flex flex-col gap-2">
+          <p
+            className="font-serif text-[15px] italic text-sh-text whitespace-pre-line leading-relaxed"
+            style={{ direction: isHebrew ? "rtl" : "ltr" }}
+          >
+            {script.text}
+          </p>
+          <button
+            onClick={handleCopy}
+            className="self-start flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-sh-muted border border-sh-border px-2 py-1 mt-1"
+          >
+            <Copy size={10} strokeWidth={1.5} />
+            Copy
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const AccordionSection = ({ title, scripts }: { title: string; scripts: Script[] }) => {
+  const [open, setOpen] = useState(title === "Greeting");
 
   return (
-    <button
-      onClick={handleCopy}
-      className="w-full text-left bg-sh-surface border border-sh-border border-l-2 border-l-sh-text rounded-none p-4"
-    >
-      {script.badge && (
-        <span className="inline-block mb-3 px-2 py-1 text-[9px] uppercase tracking-wide bg-sh-bg border border-sh-text text-sh-text rounded-none">
-          {script.badge}
-        </span>
-      )}
-      <p
-        className="font-serif text-[18px] font-normal italic text-sh-text whitespace-pre-line"
-        style={{ lineHeight: 1.7, direction: isHebrew ? "rtl" : "ltr" }}
+    <section>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between pb-2 mb-1 border-b border-sh-border"
       >
-        {script.text}
-      </p>
-    </button>
+        <span className="text-[10px] uppercase tracking-widest text-sh-muted">{title}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-sh-muted">{scripts.length}</span>
+          <ChevronDown
+            size={13}
+            strokeWidth={1.5}
+            className={`text-sh-muted transition-transform ${open ? "rotate-180" : ""}`}
+          />
+        </div>
+      </button>
+      {open && (
+        <div className="flex flex-col gap-2 mt-2">
+          {scripts.map((s, i) => (
+            <ScriptCard key={i} script={s} />
+          ))}
+        </div>
+      )}
+    </section>
   );
 };
 
@@ -251,12 +306,11 @@ const Scripts = () => {
   const [lang, setLang] = useState<Lang>("EN");
   const langs: Lang[] = ["EN", "FR", "HE"];
 
-  const filterScripts = (section: Section) => {
-    return section.scripts.filter((s) => !s.badge || s.badge === lang);
-  };
+  const filterScripts = (section: Section) =>
+    section.scripts.filter((s) => !s.badge || s.badge === lang);
 
   return (
-    <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl mx-auto md:px-10 flex flex-col gap-6">
+    <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl mx-auto md:px-10 flex flex-col gap-4">
       <div className="flex gap-2">
         {langs.map((l) => {
           const active = l === lang;
@@ -281,34 +335,28 @@ const Scripts = () => {
         const visible = filterScripts(section);
         if (visible.length === 0) return null;
         return (
-          <section key={section.title}>
-            <h3 className="text-[10px] uppercase tracking-widest text-sh-muted border-b border-sh-border pb-2 mb-3">
-              {section.title}
-            </h3>
-            <div className="flex flex-col gap-3">
-              {visible.map((s, i) => (
-                <ScriptCard key={i} script={s} />
-              ))}
-            </div>
-          </section>
+          <AccordionSection key={section.title} title={section.title} scripts={visible} />
         );
       })}
 
       <section>
-        <h3 className="text-[10px] uppercase tracking-widest text-sh-muted border-b border-sh-border pb-2 mb-3">
-          Allergen quick reference
-        </h3>
-        <div className="grid grid-cols-2 gap-2">
+        <button
+          className="w-full flex items-center justify-between pb-2 mb-1 border-b border-sh-border"
+          onClick={() => {}}
+        >
+          <span className="text-[10px] uppercase tracking-widest text-sh-muted">Allergen quick reference</span>
+        </button>
+        <div className="grid grid-cols-4 gap-2 mt-2">
           {ALLERGENS.map((a) => (
             <div
               key={a}
-              className="px-3 py-1.5 text-[11px] bg-sh-btn text-sh-bg rounded-none text-center"
+              className="px-2 py-1.5 text-[10px] bg-sh-btn text-sh-bg rounded-none text-center"
             >
               {a}
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[11px] italic text-sh-muted">
+        <p className="mt-2 text-[10px] italic text-sh-muted">
           When in doubt — always check with the kitchen.
         </p>
       </section>
