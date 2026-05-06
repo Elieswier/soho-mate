@@ -32,7 +32,7 @@ const LogShift = () => {
 
   const [date, setDate] = useState(todayISO());
   const [areas, setAreas] = useState<Shift["areas"]>(["Indoor"]);
-  const [type, setType] = useState<Shift["type"]>("Dinner");
+  const [types, setTypes] = useState<Shift["types"]>(["Dinner"]);
   const [startTime, setStartTime] = useState("12:00");
   const [endTime, setEndTime] = useState("20:00");
   const [tips, setTips] = useState<string>("");
@@ -49,6 +49,10 @@ const LogShift = () => {
     setAreas((prev) => (prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]));
   };
 
+  const toggleType = (t: "Lunch" | "Dinner" | "Event") => {
+    setTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  };
+
   const submit = () => {
     const d = new Date(date + "T00:00:00");
     const dayOfWeek = DAYS[d.getDay()];
@@ -57,7 +61,8 @@ const LogShift = () => {
       date,
       dayOfWeek,
       areas,
-      type,
+      type: types[0] ?? "Dinner",
+      types,
       startTime,
       endTime,
       hoursWorked: hours,
