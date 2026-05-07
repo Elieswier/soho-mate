@@ -10,12 +10,13 @@ const categoryLabel = (key: MenuItem["category"]) =>
 
 type Lang = "en" | "fr" | "he";
 type Rating = "again" | "almost" | "got";
-type ModeKey = "menu" | "house" | "floor" | "full";
+type ModeKey = "menu" | "house" | "floor" | "wine" | "full";
 
 const MODE_CATS: Record<ModeKey, MenuItem["category"][] | "all"> = {
   menu: ["smalls", "starters", "salads", "mains", "sides", "pizza-sandwiches"],
   house: ["soho-story", "soho-tlv"],
   floor: ["waiter"],
+  wine: ["wine"],
   full: "all",
 };
 
@@ -23,6 +24,7 @@ const MODE_META: Record<ModeKey, { name: string; tip: string }> = {
   menu: { name: "The Menu", tip: "Describe every dish in 2 sentences." },
   house: { name: "The House", tip: "Know the story behind the House." },
   floor: { name: "The Floor", tip: "This is what separates good from great." },
+  wine: { name: "Wine", tip: "Grape, body, key flavour, food pairing." },
   full: { name: "Full House", tip: "Your weakest cards come first." },
 };
 
@@ -50,7 +52,7 @@ const Flashcards = () => {
   // Auto-start from training plan deep-link
   useEffect(() => {
     const m = params.get("mode") as ModeKey | null;
-    if (m && (m === "menu" || m === "house" || m === "floor" || m === "full")) {
+    if (m && (m === "menu" || m === "house" || m === "floor" || m === "wine" || m === "full")) {
       setMode(m);
       setScreen("card");
     }
@@ -74,6 +76,7 @@ const Flashcards = () => {
     menu: itemsForMode("menu", {}).length,
     house: itemsForMode("house", {}).length,
     floor: itemsForMode("floor", {}).length,
+    wine: itemsForMode("wine", {}).length,
     full: MENU_ITEMS.length,
   }), []);
 
@@ -149,6 +152,7 @@ const Flashcards = () => {
     const map: Record<ModeKey, string> = {
       menu: "menu",
       house: "soho-story",
+      wine: "full",
       floor: "full",
       full: "full",
     };
@@ -168,7 +172,7 @@ const Flashcards = () => {
 
   // ── MODE SELECTOR ─────────────────────────────────────────────
   if (screen === "select") {
-    const modes: ModeKey[] = ["menu", "house", "floor", "full"];
+    const modes: ModeKey[] = ["menu", "house", "wine", "floor", "full"];
     return (
       <div className="px-6 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
         <h1 className="font-serif text-[32px] md:text-[48px] text-sh-text leading-tight">Study</h1>

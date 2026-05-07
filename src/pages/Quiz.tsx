@@ -37,12 +37,16 @@ const Quiz = () => {
   const [screen, setScreen] = useState<"select" | "quiz">("select");
   const [mode, setMode] = useState<ModeKey>("menu");
   const [sessionKey, setSessionKey] = useState(0);
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [customCats, setCustomCats] = useState<Set<QuizCategory>>(new Set(["menu", "soho-story"] as QuizCategory[]));
   const [allTrainingProgress, setAllTrainingProgress] = useLocalStorage<Record<string, DayProgress>>("sh_training", {});
 
   const questions = useMemo<QuizQuestion[]>(
-    () => shuffle(questionsForMode(mode)),
+    () => isCustomMode
+      ? shuffle(QUIZ_QUESTIONS.filter((q) => customCats.has(q.category)))
+      : shuffle(questionsForMode(mode)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sessionKey, mode]
+    [sessionKey, mode, isCustomMode, customCats]
   );
 
   const [index, setIndex] = useState(0);
@@ -138,8 +142,24 @@ const Quiz = () => {
     setScreen("quiz");
   };
 
+  const startCustom = () => {
+    if (customCats.size === 0) return;
+    setIsCustomMode(true);
+    restart();
+    setScreen("quiz");
+  };
+
+  const toggleCustomCat = (cat: QuizCategory) => {
+    setCustomCats((prev) => {
+      const next = new Set(prev);
+      next.has(cat) ? next.delete(cat) : next.add(cat);
+      return next;
+    });
+  };
+
   const backToSelect = () => {
     setScreen("select");
+    setIsCustomMode(false);
     restart();
   };
 
@@ -168,6 +188,47 @@ const Quiz = () => {
               </button>
             );
           })}
+        </div>
+
+        {/* Custom quiz generator */}
+        <div className="mt-8 border-t border-sh-border pt-6">
+          <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Custom mix</div>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {([
+              { cat: "menu" as QuizCategory, label: "Menu" },
+              { cat: "allergens" as QuizCategory, label: "Allergens" },
+              { cat: "soho-story" as QuizCategory, label: "The House" },
+              { cat: "service" as QuizCategory, label: "Service" },
+            ]).map(({ cat, label }) => {
+              const active = customCats.has(cat);
+              const count = QUIZ_QUESTIONS.filter((q) => q.category === cat).length;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => toggleCustomCat(cat)}
+                  className={`px-3 py-2 text-[12px] rounded-none border transition-colors ${
+                    active
+                      ? "bg-sh-text text-sh-bg border-sh-text"
+                      : "bg-transparent text-sh-muted border-sh-border"
+                  }`}
+                >
+                  {label} <span className="opacity-60 text-[10px]">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] text-sh-muted">
+              {QUIZ_QUESTIONS.filter((q) => customCats.has(q.category)).length} questions selected
+            </span>
+            <button
+              onClick={startCustom}
+              disabled={customCats.size === 0}
+              className="px-5 py-2.5 text-[13px] bg-sh-btn text-sh-btn-text rounded-none disabled:opacity-40"
+            >
+              Start custom quiz →
+            </button>
+          </div>
         </div>
       </div>
     );
