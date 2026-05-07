@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { MENU_ITEMS, CATEGORIES, MenuItem } from "@/data/menuData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
+import { useAchievements } from "@/hooks/useAchievements";
 import type { DayProgress } from "@/data/trainingPlan";
 
 const categoryLabel = (key: MenuItem["category"]) =>
@@ -66,6 +67,7 @@ const Flashcards = () => {
   const [flash, setFlash] = useState<{ id: number; text: string } | null>(null);
   const [sessionRated, setSessionRated] = useState<Record<number, Rating>>({});
   const { addXP, sessionStreak, incrementSessionStreak, resetSessionStreak, awardDailyBonus } = useXP();
+  const { trackCards } = useAchievements();
 
   const deck = useMemo(() => itemsForMode(mode, ratings), [mode, ratings]);
   const total = deck.length;
@@ -91,6 +93,7 @@ const Flashcards = () => {
 
   const handleConfidence = (level: Rating) => {
     if (!card) return;
+    trackCards(1); // count every card reviewed toward Card Master achievement
     setRatings({ ...ratings, [card.id]: level });
     if (level === "got" && !masteredIds.includes(card.id)) {
       setMasteredIds([...masteredIds, card.id]);

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useAchievements, ALL_ACHIEVEMENTS } from "@/hooks/useAchievements";
 
 const BACKUP_KEYS = [
   "sh_shifts", "sh_xp", "sh_streak", "sh_last_study",
@@ -36,6 +37,7 @@ interface ProfileProps {
 
 const Profile = ({ open, onClose }: ProfileProps) => {
   const [xp] = useLocalStorage<number>("sh_xp", 0);
+  const { isUnlocked, unlockedCount, total: achTotal } = useAchievements();
   const [hourlyRate, setHourlyRate] = useLocalStorage<number>("sh_hourly_rate", 50);
   const [language, setLanguage] = useLocalStorage<string>("sh_language", "EN");
   const [email, setEmail] = useState<string>("");
@@ -214,6 +216,33 @@ const Profile = ({ open, onClose }: ProfileProps) => {
                 );
               })}
             </div>
+          </div>
+        </div>
+
+        {/* Achievements */}
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="text-[10px] uppercase tracking-widest text-sh-muted">Achievements</div>
+            <div className="text-[11px] text-sh-muted">{unlockedCount} / {achTotal}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {ALL_ACHIEVEMENTS.map((ach) => {
+              const unlocked = isUnlocked(ach.id);
+              return (
+                <div
+                  key={ach.id}
+                  className={`bg-sh-surface border rounded-none p-3 flex flex-col gap-1 transition-opacity ${
+                    unlocked ? "border-sh-text opacity-100" : "border-sh-border opacity-40"
+                  }`}
+                >
+                  <div className="text-[20px] leading-none">{ach.emoji}</div>
+                  <div className={`text-[12px] font-medium leading-tight ${unlocked ? "text-sh-text" : "text-sh-muted"}`}>
+                    {ach.name}
+                  </div>
+                  <div className="text-[10px] text-sh-muted leading-snug">{ach.description}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

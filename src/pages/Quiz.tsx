@@ -1,21 +1,62 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { UtensilsCrossed, AlertTriangle, Landmark, Layers, Wine } from "lucide-react";
+import { UtensilsCrossed, AlertTriangle, Landmark, Layers, Wine, Zap } from "lucide-react";
 import { QUIZ_QUESTIONS, QuizQuestion, QuizCategory } from "@/data/quizData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
+import { useAchievements } from "@/hooks/useAchievements";
 import type { DayProgress } from "@/data/trainingPlan";
 
+// ── Types ──────────────────────────────────────────────────────────────────
 type ModeKey = "menu" | "allergens" | "soho-story" | "wine" | "full";
 
 const MODE_META: Record<ModeKey, { name: string; cat: QuizCategory | "all"; icon: React.ReactNode }> = {
-  menu: { name: "The Menu", cat: "menu", icon: <UtensilsCrossed size={22} strokeWidth={1.5} /> },
-  allergens: { name: "Allergens", cat: "allergens", icon: <AlertTriangle size={22} strokeWidth={1.5} /> },
-  "soho-story": { name: "The House", cat: "soho-story", icon: <Landmark size={22} strokeWidth={1.5} /> },
-  wine: { name: "Wine", cat: "wine", icon: <Wine size={22} strokeWidth={1.5} /> },
-  full: { name: "Full House", cat: "all", icon: <Layers size={22} strokeWidth={1.5} /> },
+  menu:         { name: "The Menu",   cat: "menu",       icon: <UtensilsCrossed size={22} strokeWidth={1.5} /> },
+  allergens:    { name: "Allergens",  cat: "allergens",  icon: <AlertTriangle   size={22} strokeWidth={1.5} /> },
+  "soho-story": { name: "The House",  cat: "soho-story", icon: <Landmark        size={22} strokeWidth={1.5} /> },
+  wine:         { name: "Wine",       cat: "wine",       icon: <Wine            size={22} strokeWidth={1.5} /> },
+  full:         { name: "Full House", cat: "all",        icon: <Layers          size={22} strokeWidth={1.5} /> },
 };
 
+// ── Rotating result copy ───────────────────────────────────────────────────
+type ResultTier = "perfect" | "great" | "solid" | "retry";
+const RESULT_COPY: Record<ResultTier, string[]> = {
+  perfect: [
+    "Perfect. Adam will be impressed.",
+    "Zero mistakes. The floor is yours.",
+    "Clean sweep. That's the standard.",
+    "Full marks. Don't let it go to your head.",
+  ],
+  great: [
+    "Solid run. Review the ones you missed.",
+    "Nearly there — a bit more polish.",
+    "Good shape. One more pass tonight.",
+    "Strong. The grey areas are getting smaller.",
+  ],
+  solid: [
+    "Back to the flashcards — you've got this.",
+    "Not bad, but you know what to do.",
+    "Decent start. Keep grinding.",
+    "Room to grow. That's fine.",
+  ],
+  retry: [
+    "The menu won't memorise itself.",
+    "That's what practice runs are for.",
+    "Everyone starts somewhere. Go again.",
+    "Rough round. Shake it off and retry.",
+  ],
+};
+const pickCopy = (score: number, total: number): string => {
+  const pct = total === 0 ? 0 : score / total;
+  const tier: ResultTier =
+    pct === 1        ? "perfect" :
+    pct >= 0.75      ? "great"   :
+    pct >= 0.5       ? "solid"   : "retry";
+  const pool = RESULT_COPY[tier];
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 const shuffle = <T,>(arr: T[]): T[] => {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -24,25 +65,43 @@ const shuffle = <T,>(arr: T[]): T[] => {
   }
   return a;
 };
-
 const questionsForMode = (m: ModeKey): QuizQuestion[] => {
   const cat = MODE_META[m].cat;
   return cat === "all" ? QUIZ_QUESTIONS : QUIZ_QUESTIONS.filter((q) => q.category === (cat as QuizCategory));
 };
+const DIFF_LABEL:  Record<1|2|3, string> = { 1: "Easy", 2: "Medium", 3: "Hard" };
+const DIFF_COLOUR: Record<1|2|3, string> = { 1: "text-emerald-600", 2: "text-amber-500", 3: "text-red-500" };
 
+// ── Component ──────────────────────────────────────────────────────────────
 const Quiz = () => {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const fromTraining = params.get("from") === "training";
-  const trainingDay = Number(params.get("day") ?? "0");
-  const [screen, setScreen] = useState<"select" | "quiz">("select");
-  const [mode, setMode] = useState<ModeKey>("menu");
-  const [sessionKey, setSessionKey] = useState(0);
-  const [isCustomMode, setIsCustomMode] = useState(false);
-  const [customCats, setCustomCats] = useState<Set<QuizCategory>>(new Set(["menu", "soho-story"] as QuizCategory[]));
-  const [allTrainingProgress, setAllTrainingProgress] = useLocalStorage<Record<string, DayProgress>>("sh_training", {});
+  const trainingDay  = Number(params.get("day") ?? "0");
 
-  const questions = useMemo<QuizQuestion[]>(
+  // ── All state up-front (hooks must be unconditional) ─────────────────────
+  const [screen, setScreen]           = useState<"select" | "quiz">("select");
+  const [mode, setMode]               = useState<ModeKey>("menu");
+  const [sessionKey, setSessionKey]   = useState(0);
+  const [isCustomMode, setIsCustomMode] = useState(false);
+  const [isDrillMode, setIsDrillMode]   = useState(false);
+  const [customCats, setCustomCats]   = useState<Set<QuizCategory>>(new Set(["menu", "soho-story"] as QuizCategory[]));
+  const [allTrainingProgress, setAllTrainingProgress] = useLocalStorage<Record<string, DayProgress>>("sh_training", {});
+  const [index, setIndex]             = useState(0);
+  const [selected, setSelected]       = useState<number | null>(null);
+  const [score, setScore]             = useState(0);
+  const [streak, setStreak]           = useState(0);
+  const [done, setDone]               = useState(false);
+  const [resultCopy, setResultCopy]   = useState("");
+  const [bestScore, setBestScore]     = useLocalStorage<number>("sh_best_score", 0);
+  const [flash, setFlash]             = useState<{ id: number; text: string; big?: boolean } | null>(null);
+  const [hardCorrectThisSession, setHardCorrectThisSession] = useState(0);
+
+  const { addQuizXP, trackMiss, awardDailyBonus, awardPerfectQuiz } = useXP();
+  const { checkQuiz } = useAchievements();
+
+  // Shuffled mode/custom questions
+  const modeQuestions = useMemo<QuizQuestion[]>(
     () => isCustomMode
       ? shuffle(QUIZ_QUESTIONS.filter((q) => customCats.has(q.category)))
       : shuffle(questionsForMode(mode)),
@@ -50,26 +109,29 @@ const Quiz = () => {
     [sessionKey, mode, isCustomMode, customCats]
   );
 
-  const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [done, setDone] = useState(false);
-  const [bestScore, setBestScore] = useLocalStorage<number>("sh_best_score", 0);
-  const { addXP, awardDailyBonus, awardPerfectQuiz } = useXP();
-  const [flash, setFlash] = useState<{ id: number; text: string } | null>(null);
+  // Daily Drill: 5 stable questions per day (deterministic for the day)
+  const drillQuestions = useMemo<QuizQuestion[]>(() => {
+    const day = new Date().toISOString().slice(0, 10);
+    const dayNum = day.split("-").reduce((a, b) => a + Number(b), 0);
+    return shuffle([...QUIZ_QUESTIONS].sort((a) => (a.id * dayNum) % 7 - 3.5)).slice(0, 5);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Auto-start from external link (?cat=menu)
+  // The active question set
+  const questions = isDrillMode ? drillQuestions : modeQuestions;
+  const total     = questions.length;
+  const q         = questions[index] ?? questions[0];
+  const isLast    = index === total - 1;
+
+  // Auto-start from deep-link (?cat=menu)
   useEffect(() => {
     const cat = params.get("cat") as ModeKey | null;
     if (cat && MODE_META[cat]) {
       setMode(cat);
+      setIsDrillMode(false);
+      setIsCustomMode(false);
       setScreen("quiz");
-      setIndex(0);
-      setSelected(null);
-      setScore(0);
-      setStreak(0);
-      setDone(false);
+      setIndex(0); setSelected(null); setScore(0); setStreak(0); setDone(false);
       setSessionKey((k) => k + 1);
       params.delete("cat");
       setParams(params, { replace: true });
@@ -77,14 +139,11 @@ const Quiz = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const total = questions.length;
-  const q = questions[index];
-  const isLast = index === total - 1;
-
-  const triggerFlash = (text: string) => {
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const triggerFlash = (text: string, big = false) => {
     const id = Date.now();
-    setFlash({ id, text });
-    setTimeout(() => setFlash((f) => (f && f.id === id ? null : f)), 800);
+    setFlash({ id, text, big });
+    setTimeout(() => setFlash((f) => (f && f.id === id ? null : f)), big ? 1800 : 900);
   };
 
   const choose = (i: number) => {
@@ -94,60 +153,72 @@ const Quiz = () => {
       const newStreak = streak + 1;
       setStreak(newStreak);
       setScore((s) => s + 1);
-      let amount = 10;
-      if (newStreak === 5) amount = 25;
-      else if (newStreak === 3) amount = 15;
-      addXP(amount);
+      const { amount, levelUp, newRank } = addQuizXP(q.difficulty, q.id);
+      if (q.difficulty === 3) setHardCorrectThisSession((n) => n + 1);
       const bonus = awardDailyBonus();
-      triggerFlash(bonus ? `+${amount} XP · +${bonus} daily` : `+${amount} XP`);
+      if (levelUp) {
+        triggerFlash(`✦ ${newRank}`, true);
+      } else {
+        const streakTag = newStreak >= 3 ? ` · ${newStreak}🔥` : "";
+        const bonusTag  = bonus ? ` · +${bonus} daily` : "";
+        triggerFlash(`+${amount} XP${streakTag}${bonusTag}`);
+      }
     } else {
       setStreak(0);
+      trackMiss(q.id);
     }
   };
 
-  const next = () => {
-    if (isLast) {
-      const finalScore = score;
-      if (finalScore > bestScore) setBestScore(finalScore);
-      if (finalScore === total && total > 0) {
-        const amount = awardPerfectQuiz();
-        triggerFlash(`Perfect! +${amount} XP`);
-      }
-      // Auto-mark quiz done in training plan if ≥ 70%
-      if (fromTraining && trainingDay > 0 && total > 0 && finalScore / total >= 0.7) {
-        setAllTrainingProgress((prev) => {
-          const key = String(trainingDay);
-          const existing = prev[key] ?? { flashcards: false, quiz: false, script: false, checklist: [] };
-          return { ...prev, [key]: { ...existing, quiz: true } };
-        });
-      }
-      setDone(true);
-      return;
+  const finishQuiz = (finalScore: number) => {
+    if (finalScore > bestScore) setBestScore(finalScore);
+    if (finalScore === total && total > 0) {
+      const amount = awardPerfectQuiz();
+      triggerFlash(`Perfect! +${amount} XP`, true);
     }
+    if (fromTraining && trainingDay > 0 && total > 0 && finalScore / total >= 0.7) {
+      setAllTrainingProgress((prev) => {
+        const key = String(trainingDay);
+        const existing = prev[key] ?? { flashcards: false, quiz: false, script: false, checklist: [] };
+        return { ...prev, [key]: { ...existing, quiz: true } };
+      });
+    }
+    // Determine category for achievement checks
+    const achCategory = isDrillMode
+      ? "drill"
+      : isCustomMode
+      ? "custom"
+      : (mode as "menu" | "allergens" | "soho-story" | "wine" | "full");
+    checkQuiz({ category: achCategory, score: finalScore, total, hardCorrect: hardCorrectThisSession });
+    setHardCorrectThisSession(0);
+    setResultCopy(pickCopy(finalScore, total));
+    setDone(true);
+  };
+
+  const next = () => {
+    if (isLast) { finishQuiz(score); return; }
     setIndex((i) => i + 1);
     setSelected(null);
   };
 
-  const restart = () => {
-    setIndex(0);
-    setSelected(null);
-    setScore(0);
-    setStreak(0);
-    setDone(false);
+  const reset = () => {
+    setIndex(0); setSelected(null); setScore(0); setStreak(0); setDone(false);
     setSessionKey((k) => k + 1);
   };
 
   const startMode = (m: ModeKey) => {
-    setMode(m);
-    restart();
-    setScreen("quiz");
+    setIsCustomMode(false); setIsDrillMode(false); setMode(m);
+    reset(); setScreen("quiz");
+  };
+
+  const startDrill = () => {
+    setIsCustomMode(false); setIsDrillMode(true);
+    reset(); setScreen("quiz");
   };
 
   const startCustom = () => {
     if (customCats.size === 0) return;
-    setIsCustomMode(true);
-    restart();
-    setScreen("quiz");
+    setIsCustomMode(true); setIsDrillMode(false);
+    reset(); setScreen("quiz");
   };
 
   const toggleCustomCat = (cat: QuizCategory) => {
@@ -159,19 +230,37 @@ const Quiz = () => {
   };
 
   const backToSelect = () => {
-    setScreen("select");
-    setIsCustomMode(false);
-    restart();
+    setScreen("select"); setIsCustomMode(false); setIsDrillMode(false);
+    reset();
   };
 
-  // ── MODE SELECTOR ──
+  // ── MODE SELECTOR ──────────────────────────────────────────────────────────
   if (screen === "select") {
     const modes: ModeKey[] = ["menu", "allergens", "soho-story", "wine", "full"];
     return (
       <div className="px-6 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
         <h1 className="font-serif text-[32px] text-sh-text leading-tight">Quiz</h1>
         <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your focus</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+
+        {/* Daily Drill */}
+        <div className="mt-5 border border-sh-text rounded-none p-4 flex items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <Zap size={20} strokeWidth={1.5} className="text-sh-text flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="font-serif text-[20px] text-sh-text leading-tight">Daily Drill</div>
+              <div className="text-[11px] text-sh-muted mt-0.5">5 questions · mixed · right now</div>
+            </div>
+          </div>
+          <button
+            onClick={startDrill}
+            className="px-5 py-2.5 text-[13px] bg-sh-btn text-sh-btn-text rounded-none whitespace-nowrap flex-shrink-0"
+          >
+            Start →
+          </button>
+        </div>
+
+        {/* Mode cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
           {modes.map((m) => {
             const count = questionsForMode(m).length;
             return (
@@ -191,19 +280,19 @@ const Quiz = () => {
           })}
         </div>
 
-        {/* Custom quiz generator */}
+        {/* Custom mix */}
         <div className="mt-8 border-t border-sh-border pt-6">
           <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Custom mix</div>
           <div className="flex flex-wrap gap-2 mb-4">
             {([
-              { cat: "menu" as QuizCategory, label: "Menu" },
-              { cat: "allergens" as QuizCategory, label: "Allergens" },
+              { cat: "menu"       as QuizCategory, label: "Menu"      },
+              { cat: "allergens"  as QuizCategory, label: "Allergens" },
               { cat: "soho-story" as QuizCategory, label: "The House" },
-              { cat: "wine" as QuizCategory, label: "Wine" },
-              { cat: "service" as QuizCategory, label: "Service" },
+              { cat: "wine"       as QuizCategory, label: "Wine"      },
+              { cat: "service"    as QuizCategory, label: "Service"   },
             ]).map(({ cat, label }) => {
               const active = customCats.has(cat);
-              const count = QUIZ_QUESTIONS.filter((q) => q.category === cat).length;
+              const count  = QUIZ_QUESTIONS.filter((q) => q.category === cat).length;
               return (
                 <button
                   key={cat}
@@ -236,25 +325,19 @@ const Quiz = () => {
     );
   }
 
+  // ── RESULTS ────────────────────────────────────────────────────────────────
   if (done) {
-    const message =
-      score === total
-        ? "Perfect. Adam will be impressed."
-        : score >= total * 0.75
-        ? "Solid. Review your weak cards tonight."
-        : "Back to the flashcards — you've got this.";
-
     return (
       <div className="px-5 pt-10 pb-28 max-w-md md:max-w-2xl md:px-10 mx-auto flex flex-col items-center text-center">
         <div className="font-serif text-[64px] leading-none text-sh-text">
           {score} / {total}
         </div>
-        <p className="mt-4 text-[14px] text-sh-muted">{message}</p>
+        <p className="mt-4 text-[14px] text-sh-muted">{resultCopy}</p>
         <p className="mt-2 text-[12px] text-sh-muted">
           Best score: {Math.max(bestScore, score)} / {total}
         </p>
         <button
-          onClick={restart}
+          onClick={reset}
           className="mt-10 w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
         >
           Retake quiz
@@ -278,7 +361,9 @@ const Quiz = () => {
     );
   }
 
+  // ── QUIZ SCREEN ────────────────────────────────────────────────────────────
   const answered = selected !== null;
+  const backLabel = fromTraining ? "Training" : isDrillMode ? "Daily Drill" : "Modes";
 
   return (
     <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden relative">
@@ -287,48 +372,68 @@ const Quiz = () => {
         aria-label="Back"
         className="text-sh-muted text-[13px] min-h-[44px] flex items-center gap-1"
       >
-        ← {fromTraining ? "Training" : "Modes"}
+        ← {backLabel}
       </button>
+
+      {/* XP / rank flash */}
       {flash && (
         <div
           key={flash.id}
-          className="absolute top-12 left-1/2 -translate-x-1/2 text-[11px] text-sh-text animate-xp-flash pointer-events-none z-10"
+          className={`absolute top-12 left-1/2 -translate-x-1/2 pointer-events-none z-10 whitespace-nowrap
+            ${flash.big
+              ? "font-serif text-[20px] text-sh-text animate-xp-flash"
+              : "font-sans text-[11px] text-sh-text animate-xp-flash"
+            }`}
         >
           {flash.text}
         </div>
       )}
+
+      {/* Progress */}
       <div className="flex items-center justify-between text-[12px] text-sh-muted">
-        <span>Question {index + 1} / {total}</span>
+        <span className="flex items-center gap-2">
+          Question {index + 1} / {total}
+          {isDrillMode && (
+            <span className="text-[9px] uppercase tracking-widest border border-sh-border px-1.5 py-0.5">
+              Drill
+            </span>
+          )}
+        </span>
         <span>{score} / {index + (answered ? 1 : 0)} correct</span>
       </div>
       <div className="mt-2 h-px w-full bg-sh-border relative">
         <div
-          className="absolute inset-y-0 left-0 bg-sh-text"
+          className="absolute inset-y-0 left-0 bg-sh-text transition-all"
           style={{ width: `${((index + (answered ? 1 : 0)) / total) * 100}%` }}
         />
       </div>
 
+      {/* Question card */}
       <div className="mt-6 bg-sh-surface border border-sh-border rounded-none p-6">
+        <div className="flex items-center justify-between mb-3">
+          <span className={`text-[10px] uppercase tracking-widest font-sans ${DIFF_COLOUR[q.difficulty]}`}>
+            {DIFF_LABEL[q.difficulty]}
+          </span>
+          <span className="text-[10px] text-sh-muted uppercase tracking-widest">
+            {q.category === "soho-story" ? "the house" : q.category}
+          </span>
+        </div>
         <h2 className="font-serif text-[24px] font-normal text-sh-text leading-relaxed">
           {q.question}
         </h2>
       </div>
 
+      {/* Options */}
       <div className="mt-5 flex flex-col gap-2">
         {q.options.map((opt, i) => {
           const isCorrect = i === q.correctIndex;
-          const isPicked = selected === i;
-          let cls = "bg-sh-bg border-sh-border text-sh-text";
+          const isPicked  = selected === i;
+          let cls   = "bg-sh-bg border-sh-border text-sh-text";
           let extra = "";
           if (answered) {
-            if (isCorrect) {
-              cls = "bg-sh-surface border-sh-text text-sh-text";
-            } else if (isPicked) {
-              cls = "bg-sh-bg border-sh-muted text-sh-muted";
-              extra = "line-through";
-            } else {
-              cls = "bg-sh-bg border-sh-border text-sh-muted";
-            }
+            if (isCorrect)     { cls = "bg-sh-surface border-sh-text text-sh-text"; }
+            else if (isPicked) { cls = "bg-sh-bg border-sh-muted text-sh-muted"; extra = "line-through"; }
+            else               { cls = "bg-sh-bg border-sh-border text-sh-muted"; }
           }
           return (
             <button
@@ -343,12 +448,14 @@ const Quiz = () => {
         })}
       </div>
 
+      {/* Explanation */}
       {answered && (
         <p className="mt-4 text-[12px] italic text-sh-muted leading-relaxed">
           {q.explanation}
         </p>
       )}
 
+      {/* Next / See results */}
       {answered && (
         <button
           onClick={next}

@@ -52,9 +52,9 @@ const DayList = ({ allProgress, onSelect }: DayListProps) => {
   return (
     <div className="flex flex-col gap-3">
       <div className="mb-1">
-        <div className="font-serif text-[28px] text-sh-text leading-tight">7-Day Training Plan</div>
+        <div className="font-serif text-[28px] text-sh-text leading-tight">The Runway</div>
         <div className="text-[12px] text-sh-muted mt-1">
-          Complete each day to unlock the next.
+          7 days. Complete each to unlock the next.
         </div>
       </div>
 
