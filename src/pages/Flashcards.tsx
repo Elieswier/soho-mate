@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { MENU_ITEMS, CATEGORIES, MenuItem } from "@/data/menuData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
+import type { DayProgress } from "@/data/trainingPlan";
 
 const categoryLabel = (key: MenuItem["category"]) =>
   CATEGORIES.find((c) => c.key === key)?.label ?? key;
@@ -43,6 +44,8 @@ const Flashcards = () => {
   const fromTraining = params.get("from") === "training";
   const [screen, setScreen] = useState<"select" | "start" | "card">("select");
   const [mode, setMode] = useState<ModeKey>("menu");
+  const [allTrainingProgress, setAllTrainingProgress] = useLocalStorage<Record<string, DayProgress>>("sh_training", {});
+  const trainingDay = Number(params.get("day") ?? "0");
 
   // Auto-start from training plan deep-link
   useEffect(() => {
@@ -129,7 +132,16 @@ const Flashcards = () => {
   const openMode = (m: ModeKey) => { setMode(m); setScreen("start"); };
   const startStudying = () => { setCurrentIndex(0); setIsFlipped(false); setSessionRated({}); setScreen("card"); };
   const backToModes = () => {
-    if (fromTraining) { navigate("/insights"); return; }
+    if (fromTraining && trainingDay > 0) {
+      // Auto-mark flashcards done when returning to training
+      setAllTrainingProgress((prev) => {
+        const key = String(trainingDay);
+        const existing = prev[key] ?? { flashcards: false, quiz: false, script: false, checklist: [] };
+        return { ...prev, [key]: { ...existing, flashcards: true } };
+      });
+      navigate("/insights");
+      return;
+    }
     setScreen("select"); setIsFlipped(false); setCurrentIndex(0);
   };
 
@@ -380,7 +392,7 @@ const Flashcards = () => {
         onClick={backToModes}
         className="mt-3 w-full text-center text-[11px] text-sh-muted font-sans min-h-[44px]"
       >
-        ← Back to modes
+        ← {fromTraining ? "Back to training" : "Back to modes"}
       </button>
     </div>
   );
