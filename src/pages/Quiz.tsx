@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { UtensilsCrossed, AlertTriangle, Landmark, Layers } from "lucide-react";
+import { UtensilsCrossed, AlertTriangle, Landmark, Layers, Wine } from "lucide-react";
 import { QUIZ_QUESTIONS, QuizQuestion, QuizCategory } from "@/data/quizData";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useXP } from "@/hooks/useXP";
 import type { DayProgress } from "@/data/trainingPlan";
 
-type ModeKey = "menu" | "allergens" | "soho-story" | "full";
+type ModeKey = "menu" | "allergens" | "soho-story" | "wine" | "full";
 
 const MODE_META: Record<ModeKey, { name: string; cat: QuizCategory | "all"; icon: React.ReactNode }> = {
   menu: { name: "The Menu", cat: "menu", icon: <UtensilsCrossed size={22} strokeWidth={1.5} /> },
   allergens: { name: "Allergens", cat: "allergens", icon: <AlertTriangle size={22} strokeWidth={1.5} /> },
   "soho-story": { name: "The House", cat: "soho-story", icon: <Landmark size={22} strokeWidth={1.5} /> },
+  wine: { name: "Wine", cat: "wine", icon: <Wine size={22} strokeWidth={1.5} /> },
   full: { name: "Full House", cat: "all", icon: <Layers size={22} strokeWidth={1.5} /> },
 };
 
@@ -26,7 +27,7 @@ const shuffle = <T,>(arr: T[]): T[] => {
 
 const questionsForMode = (m: ModeKey): QuizQuestion[] => {
   const cat = MODE_META[m].cat;
-  return cat === "all" ? QUIZ_QUESTIONS : QUIZ_QUESTIONS.filter((q) => q.category === cat);
+  return cat === "all" ? QUIZ_QUESTIONS : QUIZ_QUESTIONS.filter((q) => q.category === (cat as QuizCategory));
 };
 
 const Quiz = () => {
@@ -165,7 +166,7 @@ const Quiz = () => {
 
   // ── MODE SELECTOR ──
   if (screen === "select") {
-    const modes: ModeKey[] = ["menu", "allergens", "soho-story", "full"];
+    const modes: ModeKey[] = ["menu", "allergens", "soho-story", "wine", "full"];
     return (
       <div className="px-6 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
         <h1 className="font-serif text-[32px] text-sh-text leading-tight">Quiz</h1>
@@ -198,6 +199,7 @@ const Quiz = () => {
               { cat: "menu" as QuizCategory, label: "Menu" },
               { cat: "allergens" as QuizCategory, label: "Allergens" },
               { cat: "soho-story" as QuizCategory, label: "The House" },
+              { cat: "wine" as QuizCategory, label: "Wine" },
               { cat: "service" as QuizCategory, label: "Service" },
             ]).map(({ cat, label }) => {
               const active = customCats.has(cat);
