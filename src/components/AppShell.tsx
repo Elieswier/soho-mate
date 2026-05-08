@@ -20,34 +20,47 @@ const AppShell = ({ children }: { children: ReactNode }) => {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Mobile header — hidden on desktop */}
         <header
-          className="md:hidden fixed top-0 inset-x-0 bg-sh-bg border-b border-sh-border flex items-center justify-between px-4 z-40"
+          className="md:hidden fixed top-0 inset-x-0 flex items-center justify-between px-4 z-40"
           style={{
             height: "calc(56px + env(safe-area-inset-top))",
             paddingTop: "env(safe-area-inset-top)",
+            background: "rgba(250, 248, 245, 0.85)",
+            backdropFilter: "blur(20px) saturate(1.4)",
+            WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+            borderBottom: "1px solid rgba(214, 206, 195, 0.6)",
           }}
         >
-          <div className="flex flex-col leading-tight min-w-0">
-            <span className="text-[10px] uppercase tracking-wider text-sh-muted truncate">{rank}</span>
-            <span className="text-[11px] text-sh-text">{xp} XP</span>
+          {/* XP pill */}
+          <div
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
+            style={{ background: "rgba(240, 234, 224, 0.8)" }}
+          >
+            <span className="text-[10px] font-medium text-sh-text">{xp} XP</span>
+            {dailyStreak > 0 && (
+              <span className="text-[10px] text-sh-muted">· 🔥{dailyStreak}</span>
+            )}
           </div>
+
+          {/* Logo centered */}
           <h1
-            className="font-serif text-[20px] font-normal text-sh-text absolute left-1/2"
-            style={{ top: "calc(50% + env(safe-area-inset-top) / 2)", transform: "translate(-50%, -50%)" }}
+            className="font-serif text-[21px] font-normal text-sh-text absolute left-1/2"
+            style={{
+              top: "calc(50% + env(safe-area-inset-top) / 2)",
+              transform: "translate(-50%, -50%)",
+              letterSpacing: "-0.01em",
+            }}
           >
             Soho Mate
           </h1>
-          <div className="flex items-center gap-3 min-w-[40px] justify-end">
-            <span className="text-[11px] text-sh-text">
-              {dailyStreak > 0 ? `🔥 ${dailyStreak}` : ""}
-            </span>
-            <button
-              onClick={() => setProfileOpen(true)}
-              aria-label="Open profile"
-              className="flex items-center justify-center min-w-[44px] min-h-[44px] -mr-2"
-            >
-              <UserCircle size={20} color="#6B6560" />
-            </button>
-          </div>
+
+          {/* Profile button */}
+          <button
+            onClick={() => setProfileOpen(true)}
+            aria-label="Open profile"
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-sh-surface transition-colors"
+          >
+            <UserCircle size={19} strokeWidth={1.5} className="text-sh-muted" />
+          </button>
         </header>
 
         <Profile open={profileOpen} onClose={() => setProfileOpen(false)} />

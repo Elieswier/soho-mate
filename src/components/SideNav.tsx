@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Layers, HelpCircle, FileText, ClipboardList, BarChart3, UserCircle } from "lucide-react";
+import { Layers, HelpCircle, FileText, ClipboardList, BarChart3, UserCircle, Zap } from "lucide-react";
 import { useXP, RANKS } from "@/hooks/useXP";
 
 const tabs = [
@@ -24,12 +24,18 @@ const SideNav = ({ onProfileOpen }: { onProfileOpen: () => void }) => {
     : 100;
 
   return (
-    <aside className="hidden md:flex flex-col w-52 h-full border-r border-sh-border bg-sh-bg flex-shrink-0">
+    <aside className="hidden md:flex flex-col w-56 h-full border-r border-sh-border bg-sh-bg flex-shrink-0">
       {/* Logo */}
-      <div className="px-6 pt-8 pb-6 border-b border-sh-border">
-        <div className="font-serif text-[24px] text-sh-text leading-none">Soho Mate</div>
-        <div className="text-[10px] uppercase tracking-widest text-sh-muted mt-1">Tel Aviv-Jaffa</div>
+      <div className="px-5 pt-7 pb-5">
+        <div className="font-serif text-[26px] text-sh-text leading-none tracking-tight">
+          Soho Mate
+        </div>
+        <div className="text-[10px] uppercase tracking-[0.18em] text-sh-muted mt-1.5">
+          Tel Aviv-Jaffa
+        </div>
       </div>
+
+      <div className="mx-4 h-px bg-sh-border" />
 
       {/* Nav links */}
       <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
@@ -39,42 +45,62 @@ const SideNav = ({ onProfileOpen }: { onProfileOpen: () => void }) => {
             to={to}
             end={end}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 text-[13px] transition-colors ${
+              `flex items-center gap-2.5 px-3 py-2.5 text-[13px] rounded-xl transition-all duration-150 ${
                 isActive
-                  ? "bg-sh-surface text-sh-text border-l-2 border-sh-text pl-[10px]"
-                  : "text-sh-muted hover:text-sh-text hover:bg-sh-surface border-l-2 border-transparent pl-[10px]"
+                  ? "bg-sh-text text-white shadow-sh-sm"
+                  : "text-sh-muted hover:text-sh-text hover:bg-sh-surface"
               }`
             }
           >
-            <Icon size={15} strokeWidth={1.5} />
-            {label}
+            {({ isActive }) => (
+              <>
+                <Icon size={15} strokeWidth={isActive ? 2 : 1.5} />
+                <span className={isActive ? "font-medium" : "font-normal"}>{label}</span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
 
       {/* XP widget + profile */}
-      <div className="px-5 py-5 border-t border-sh-border">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-[10px] uppercase tracking-widest text-sh-muted">{rank}</div>
+      <div className="mx-3 mb-4 rounded-xl bg-sh-surface border border-sh-border p-4">
+        {/* Rank row */}
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-1.5">
+            <Zap size={11} strokeWidth={2} className="text-sh-accent" />
+            <span className="text-[10px] uppercase tracking-[0.14em] text-sh-muted font-medium">
+              {rank}
+            </span>
+          </div>
           {dailyStreak > 0 && (
-            <div className="text-[10px] text-sh-muted">🔥 {dailyStreak}</div>
+            <span className="text-[11px] text-sh-muted">🔥 {dailyStreak}</span>
           )}
         </div>
-        <div className="h-px w-full bg-sh-border relative mb-1.5">
+
+        {/* Progress bar */}
+        <div className="h-1.5 w-full bg-sh-border rounded-full overflow-hidden mb-2">
           <div
-            className="absolute inset-y-0 left-0 bg-sh-text transition-all duration-500"
-            style={{ width: `${progressPct}%` }}
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${progressPct}%`,
+              background: "linear-gradient(90deg, #C4A882, #1A1A1A)",
+            }}
           />
         </div>
+
+        {/* XP text */}
         <div className="text-[10px] text-sh-muted mb-3">
-          {xp} XP{nextRank ? ` · ${nextRank.min - xp} to ${nextRank.name}` : " · top rank"}
+          <span className="text-sh-text font-medium">{xp} XP</span>
+          {nextRank ? ` · ${nextRank.min - xp} to ${nextRank.name}` : " · Top rank"}
         </div>
+
+        {/* Profile button */}
         <button
           onClick={onProfileOpen}
-          className="flex items-center gap-2 text-[11px] text-sh-muted hover:text-sh-text transition-colors"
+          className="flex items-center gap-2 text-[12px] text-sh-muted hover:text-sh-text transition-colors w-full"
         >
-          <UserCircle size={14} strokeWidth={1.5} />
-          Profile
+          <UserCircle size={15} strokeWidth={1.5} />
+          <span>Profile</span>
         </button>
       </div>
     </aside>
