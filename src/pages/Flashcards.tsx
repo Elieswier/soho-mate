@@ -175,19 +175,19 @@ const Flashcards = () => {
 
   // ── MODE SELECTOR ─────────────────────────────────────────────
   if (screen === "select") {
-    const DECK_META: Record<ModeKey, { tag: string; bg: string; textColor: string; numColor: string; border: string }> = {
-      menu:  { tag: "Dishes · allergens · descriptions", bg: "bg-[#F0EAE0]", textColor: "text-sh-text", numColor: "text-sh-text", border: "border-[#D6CEC3]" },
-      house: { tag: "Culture · story · Soho TLV",        bg: "bg-[#EAE4DA]", textColor: "text-sh-text", numColor: "text-sh-text", border: "border-[#CCC6BB]" },
-      wine:  { tag: "Varietals · service · pairings",    bg: "bg-[#E4DDD3]", textColor: "text-sh-text", numColor: "text-sh-text", border: "border-[#C8C0B4]" },
-      floor: { tag: "Service standards & scripts",       bg: "bg-[#EDE8E0]", textColor: "text-sh-text", numColor: "text-sh-text", border: "border-[#D2CBC0]" },
-      full:  { tag: "All decks · weakest cards first",   bg: "bg-sh-text",   textColor: "text-sh-bg",   numColor: "text-sh-bg",   border: "border-sh-text"   },
+    const DECK_META: Record<ModeKey, { tag: string; bg: string; textColor: string; border: string }> = {
+      menu:  { tag: "DISHES · ALLERGENS", bg: "bg-[#F0EAE0]", textColor: "text-sh-text", border: "border-[#D6CEC3]" },
+      house: { tag: "CULTURE · STORY",    bg: "bg-[#EAE4DA]", textColor: "text-sh-text", border: "border-[#CCC6BB]" },
+      wine:  { tag: "VARIETALS · SERVICE", bg: "bg-[#E4DDD3]", textColor: "text-sh-text", border: "border-[#C8C0B4]" },
+      floor: { tag: "SERVICE STANDARDS",  bg: "bg-[#EDE8E0]", textColor: "text-sh-text", border: "border-[#D2CBC0]" },
+      full:  { tag: "ALL DECKS",          bg: "bg-sh-text",   textColor: "text-sh-bg",   border: "border-sh-text"   },
     };
 
     const BentoCard = ({
       mode: m,
       height,
       colSpan = "",
-      titleSize = "text-[22px]",
+      titleSize = "text-[20px]",
     }: {
       mode: ModeKey;
       height: number;
@@ -207,32 +207,28 @@ const Flashcards = () => {
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.boxShadow =
-                "0 6px 20px rgba(26,26,26,0.10), 0 0 0 1px rgba(196,168,130,0.25)";
+                "0 6px 20px rgba(26,26,26,0.10), 0 0 0 1px rgba(217,79,46,0.2)";
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLElement).style.boxShadow =
                 "0 2px 8px rgba(26,26,26,0.06), 0 0 0 1px rgba(214,206,195,0.3)";
             }}
           >
-            <div
-              className={`absolute -bottom-4 -right-2 font-serif leading-none pointer-events-none select-none opacity-[0.07] ${meta.numColor}`}
-              style={{ fontSize: height > 140 ? "110px" : "80px" }}
-            >
-              {counts[m]}
-            </div>
-            <div className={`font-serif ${titleSize} leading-tight ${meta.textColor}`}>{info.name}</div>
+            <div className={`font-sans font-black ${titleSize} leading-tight tracking-tight ${meta.textColor}`}>{info.name}</div>
             <div>
               {meta.tag && (
-                <div className={`font-sans text-[10px] uppercase tracking-widest opacity-45 mb-1 ${meta.textColor}`}>
+                <div className={`font-sans text-[9px] uppercase tracking-[0.12em] opacity-40 mb-1.5 ${meta.textColor}`}>
                   {meta.tag}
                 </div>
               )}
-              <div className={`font-sans text-[12px] ${meta.textColor} opacity-70`}>{counts[m]} cards</div>
+              <div className="flex items-center justify-between">
+                <div className={`font-sans text-[12px] font-semibold ${meta.textColor} opacity-60`}>{counts[m]} cards</div>
+              </div>
             </div>
           </button>
           <button
             onClick={() => quizForMode(m)}
-            className="text-[11px] text-sh-muted rounded-xl border border-sh-border bg-transparent py-2 hover:bg-sh-surface hover:text-sh-text transition-all duration-150"
+            className="text-[11px] font-semibold text-sh-cta rounded-xl border border-sh-border bg-transparent py-2 hover:bg-sh-cta hover:text-white transition-all duration-150"
           >
             Quiz this deck →
           </button>
@@ -243,13 +239,13 @@ const Flashcards = () => {
     return (
       <div className="px-5 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
         <div className="flex items-end justify-between mb-6">
-          <h1 className="font-serif text-[42px] md:text-[54px] text-sh-text leading-none tracking-tight">Study</h1>
+          <h1 className="font-sans font-black text-[44px] md:text-[56px] text-sh-text leading-none tracking-tight">Study</h1>
           <span className="font-sans text-[11px] text-sh-muted mb-1.5">{counts.full} cards total</span>
         </div>
 
         {/* Bento grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <BentoCard mode="menu"  height={168} colSpan="col-span-2" titleSize="text-[30px]" />
+          <BentoCard mode="menu"  height={168} colSpan="col-span-2" titleSize="text-[28px]" />
           <BentoCard mode="house" height={168} />
           <BentoCard mode="wine"  height={168} />
 
@@ -272,20 +268,19 @@ const Flashcards = () => {
                 (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(26,26,26,0.18)";
               }}
             >
-              <div className="absolute -bottom-4 -right-2 font-serif text-[110px] leading-none pointer-events-none select-none opacity-[0.08] text-sh-bg">
-                {counts.full}
+              <div className="font-sans font-black text-[26px] leading-tight tracking-tight text-sh-bg">
+                Full House
               </div>
-              <div className="flex items-center justify-between">
-                <div className="font-serif text-[26px] leading-tight text-sh-bg">Full House</div>
+              <div className="flex items-end justify-between">
+                <div className="font-sans text-[11px] opacity-60 text-sh-bg">
+                  Weakest cards first · {counts.full} cards
+                </div>
                 <div className="font-sans text-[10px] uppercase tracking-[0.14em] opacity-50 text-sh-bg">All decks</div>
-              </div>
-              <div className="font-sans text-[11px] opacity-60 text-sh-bg">
-                Weakest cards surface first · {counts.full} cards
               </div>
             </button>
             <button
               onClick={() => quizForMode("full")}
-              className="text-[11px] text-sh-muted rounded-xl border border-sh-border bg-transparent py-2 hover:bg-sh-surface hover:text-sh-text transition-all duration-150"
+              className="text-[11px] font-semibold text-sh-cta rounded-xl border border-sh-border bg-transparent py-2 hover:bg-sh-cta hover:text-white transition-all duration-150"
             >
               Quiz this deck →
             </button>
@@ -312,17 +307,17 @@ const Flashcards = () => {
           {counts[mode]} cards
         </div>
 
-        <h2 className="font-serif text-[52px] text-sh-text leading-none tracking-tight">{MODE_META[mode].name}</h2>
+        <h2 className="font-sans font-black text-[44px] text-sh-text leading-none tracking-tight">{MODE_META[mode].name}</h2>
 
         <div className="h-px w-20 bg-gradient-to-r from-transparent via-sh-border to-transparent my-6" />
 
-        <p className="font-sans italic text-[13px] text-sh-muted max-w-[260px] leading-relaxed">{MODE_META[mode].tip}</p>
+        <p className="font-sans text-[13px] text-sh-muted max-w-[260px] leading-relaxed">{MODE_META[mode].tip}</p>
 
         <button
           onClick={startStudying}
-          className="mt-8 w-full bg-sh-text text-white py-3.5 text-[14px] font-sans rounded-xl min-h-[44px] hover:opacity-90 active:opacity-75 transition-opacity shadow-sh-md"
+          className="mt-8 w-full bg-sh-cta text-white py-3.5 text-[14px] font-sans font-semibold rounded-xl min-h-[44px] hover:bg-sh-cta-dark active:opacity-90 transition-all duration-150 shadow-sh-md"
         >
-          Start studying
+          Start studying →
         </button>
         <button
           onClick={backToModes}
@@ -352,12 +347,14 @@ const Flashcards = () => {
               className="h-full rounded-full transition-all duration-300"
               style={{
                 width: total === 0 ? "0%" : `${((safeIndex + 1) / total) * 100}%`,
-                background: "linear-gradient(90deg, #C4A882, #1A1A1A)",
+                background: "linear-gradient(90deg, #C4A882, #D94F2E)",
               }}
             />
           </div>
           {sessionStreak > 1 && (
-            <div className="text-[10px] text-sh-muted">🔥 {sessionStreak} in a row</div>
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sh-cta-light text-sh-cta text-[10px] font-semibold self-start">
+              🔥 {sessionStreak} in a row
+            </div>
           )}
         </div>
         <span className="text-[11px] text-sh-muted shrink-0">
@@ -396,7 +393,7 @@ const Flashcards = () => {
                     <div className="h-1/2 p-6 flex flex-col">
                       <div className="text-[10px] uppercase tracking-[0.15em] text-sh-muted">{categoryLabel(card.category)}</div>
                       <div className="flex-1 flex items-center justify-center">
-                        <h2 className="font-serif text-[36px] font-normal text-sh-text text-center leading-tight">{card.name}</h2>
+                        <h2 className="font-sans font-black text-[32px] text-sh-text text-center leading-tight tracking-tight">{card.name}</h2>
                       </div>
                       <div className="text-center text-[11px] text-sh-muted opacity-60">Tap to reveal</div>
                     </div>
@@ -405,7 +402,7 @@ const Flashcards = () => {
                   <div className="h-full p-6 flex flex-col">
                     <div className="text-[10px] uppercase tracking-[0.15em] text-sh-muted">{categoryLabel(card.category)}</div>
                     <div className="flex-1 flex items-center justify-center">
-                      <h2 className="font-serif text-[26px] font-normal text-sh-text text-center leading-snug">{card.name}</h2>
+                      <h2 className="font-sans font-black text-[24px] text-sh-text text-center leading-snug tracking-tight">{card.name}</h2>
                     </div>
                     <div className="text-center text-[11px] text-sh-muted opacity-60">Tap to reveal</div>
                   </div>
@@ -468,7 +465,7 @@ const Flashcards = () => {
                   <div className="h-full flex flex-col">
                     <div className="text-[10px] uppercase tracking-[0.15em] text-sh-muted">{categoryLabel(card.category)}</div>
                     <div className="flex-1 flex items-center justify-center">
-                      <p className="font-serif text-[22px] text-sh-text text-center leading-snug">{card.ingredients}</p>
+                      <p className="font-sans text-[18px] text-sh-text text-center leading-snug">{card.ingredients}</p>
                     </div>
                   </div>
                 )
@@ -483,15 +480,17 @@ const Flashcards = () => {
           {flash && (
             <div
               key={flash.id}
-              className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-medium text-sh-text animate-xp-flash pointer-events-none whitespace-nowrap"
+              className="absolute -top-3 left-1/2 -translate-x-1/2 animate-xp-flash pointer-events-none whitespace-nowrap"
             >
-              {flash.text}
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-sh-cta text-white text-[11px] font-semibold shadow-sh-md">
+                {flash.text}
+              </span>
             </div>
           )}
           {[
-            { k: "again",  label: "Again",  style: "text-sh-muted hover:border-sh-border-strong hover:text-sh-text" },
-            { k: "almost", label: "Almost", style: "text-sh-muted hover:border-sh-border-strong hover:text-sh-text" },
-            { k: "got",    label: "Got it ✓", style: "text-sh-text border-sh-text hover:bg-sh-text hover:text-white" },
+            { k: "again",  label: "Again",  style: "bg-sh-error-light text-sh-error border-sh-error-border hover:bg-sh-error hover:text-white hover:border-sh-error" },
+            { k: "almost", label: "Almost", style: "text-sh-muted border-sh-border hover:border-sh-border-strong hover:text-sh-text" },
+            { k: "got",    label: "Got it ✓", style: "bg-sh-success text-white border-sh-success hover:opacity-90" },
           ].map((b) => (
             <button
               key={b.k}

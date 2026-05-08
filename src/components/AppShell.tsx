@@ -43,11 +43,10 @@ const AppShell = ({ children }: { children: ReactNode }) => {
 
           {/* Logo centered */}
           <h1
-            className="font-serif text-[21px] font-normal text-sh-text absolute left-1/2"
+            className="font-sans font-black text-[18px] text-sh-text absolute left-1/2 tracking-tight"
             style={{
               top: "calc(50% + env(safe-area-inset-top) / 2)",
               transform: "translate(-50%, -50%)",
-              letterSpacing: "-0.01em",
             }}
           >
             Soho Mate

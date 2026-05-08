@@ -27,7 +27,7 @@ const SideNav = ({ onProfileOpen }: { onProfileOpen: () => void }) => {
     <aside className="hidden md:flex flex-col w-56 h-full border-r border-sh-border bg-sh-bg flex-shrink-0">
       {/* Logo */}
       <div className="px-5 pt-7 pb-5">
-        <div className="font-serif text-[26px] text-sh-text leading-none tracking-tight">
+        <div className="font-sans font-black text-[22px] text-sh-text leading-none tracking-tight">
           Soho Mate
         </div>
         <div className="text-[10px] uppercase tracking-[0.18em] text-sh-muted mt-1.5">

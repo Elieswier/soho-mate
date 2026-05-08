@@ -236,37 +236,37 @@ const Quiz = () => {
 
   // ── MODE SELECTOR ──────────────────────────────────────────────────────────
   if (screen === "select") {
-    const QUIZ_CARD_META: Record<ModeKey, { tag: string; bg: string; textColor: string; numColor: string }> = {
-      menu:         { tag: "Dishes · descriptions · allergens", bg: "bg-[#F0EAE0]", textColor: "text-sh-text", numColor: "text-sh-text" },
-      allergens:    { tag: "Safe service · 14 allergens",       bg: "bg-[#EDE8E0]", textColor: "text-sh-text", numColor: "text-sh-text" },
-      "soho-story": { tag: "Culture · story · Soho TLV",        bg: "bg-[#E8E2D8]", textColor: "text-sh-text", numColor: "text-sh-text" },
-      wine:         { tag: "Varietals · service · pairings",    bg: "bg-[#E8E2D8]", textColor: "text-sh-text", numColor: "text-sh-text" },
-      full:         { tag: "All categories · mixed difficulty", bg: "bg-sh-text",   textColor: "text-sh-bg",   numColor: "text-sh-bg"   },
+    const QUIZ_CARD_META: Record<ModeKey, { tag: string; bg: string; textColor: string; border: string }> = {
+      menu:         { tag: "Dishes · allergens",         bg: "bg-[#F0EAE0]", textColor: "text-sh-text", border: "border-[#D6CEC3]" },
+      allergens:    { tag: "Safe service · 14 allergens", bg: "bg-[#EDE8E0]", textColor: "text-sh-text", border: "border-[#D2CBC0]" },
+      "soho-story": { tag: "Culture · Soho TLV",          bg: "bg-[#E8E2D8]", textColor: "text-sh-text", border: "border-[#CCC6BB]" },
+      wine:         { tag: "Varietals · pairings",        bg: "bg-[#E4DDD3]", textColor: "text-sh-text", border: "border-[#C8C0B4]" },
+      full:         { tag: "All categories",              bg: "bg-sh-text",   textColor: "text-sh-bg",   border: "border-sh-text"   },
     };
 
     return (
       <div className="px-5 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
         {/* Header */}
-        <div className="flex items-end justify-between mb-5">
-          <h1 className="font-serif text-[40px] md:text-[52px] text-sh-text leading-none">Quiz</h1>
-          <span className="text-[11px] text-sh-muted mb-1">{QUIZ_QUESTIONS.length} questions</span>
+        <div className="flex items-end justify-between mb-6">
+          <h1 className="font-sans font-black text-[44px] md:text-[56px] text-sh-text leading-none tracking-tight">Quiz</h1>
+          <span className="text-[11px] text-sh-muted mb-1.5">{QUIZ_QUESTIONS.length} questions</span>
         </div>
 
-        {/* Daily Drill — dark featured card */}
+        {/* Daily Drill — hero card */}
         <button
           onClick={startDrill}
-          className="w-full bg-sh-text text-sh-bg rounded-none p-5 text-left flex items-center justify-between gap-4 mb-3 transition-opacity hover:opacity-90 active:opacity-75"
-          style={{ minHeight: 88 }}
+          className="w-full bg-sh-cta text-white rounded-2xl p-5 text-left flex items-center justify-between gap-4 mb-4 hover:bg-sh-cta-dark active:scale-[0.98] transition-all duration-150"
+          style={{ minHeight: 96, boxShadow: "0 4px 20px rgba(217,79,46,0.30)" }}
         >
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Zap size={13} strokeWidth={1.5} className="opacity-60" />
-              <span className="text-[9px] uppercase tracking-widest opacity-50">Daily Drill</span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <Zap size={13} strokeWidth={2} className="opacity-80" />
+              <span className="text-[9px] uppercase tracking-[0.14em] opacity-75 font-semibold">Daily Drill</span>
             </div>
-            <div className="font-serif text-[24px] leading-tight">5 questions · right now</div>
-            <div className="text-[11px] opacity-50 mt-0.5">Mixed · changes every day</div>
+            <div className="font-sans font-black text-[22px] leading-tight tracking-tight">5 questions · right now</div>
+            <div className="text-[12px] opacity-70 mt-1">Mixed · changes every day</div>
           </div>
-          <span className="font-serif text-[28px] opacity-25 flex-shrink-0">→</span>
+          <span className="font-sans font-black text-[32px] opacity-50 flex-shrink-0">→</span>
         </button>
 
         {/* Bento grid */}
@@ -274,19 +274,18 @@ const Quiz = () => {
           {/* Menu — wide */}
           {(() => {
             const m: ModeKey = "menu";
-            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const { tag, bg, textColor, border } = QUIZ_CARD_META[m];
             const count = questionsForMode(m).length;
             return (
               <button
                 onClick={() => startMode(m)}
-                className={`col-span-2 relative overflow-hidden ${bg} rounded-none p-5 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
-                style={{ height: 160 }}
+                className={`col-span-2 relative overflow-hidden border ${border} ${bg} rounded-2xl p-5 text-left flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]`}
+                style={{ height: 148, boxShadow: "0 2px 8px rgba(26,26,26,0.06), 0 0 0 1px rgba(214,206,195,0.3)" }}
               >
-                <div className={`absolute bottom-2 right-4 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 120 }}>{count}</div>
-                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div className={`text-[9px] uppercase tracking-[0.12em] ${textColor} opacity-40 font-sans`}>{tag}</div>
                 <div>
-                  <div className={`font-serif text-[30px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
-                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                  <div className={`font-sans font-black text-[28px] ${textColor} leading-tight tracking-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[11px] font-semibold ${textColor} opacity-50 mt-0.5`}>{count} questions</div>
                 </div>
               </button>
             );
@@ -295,19 +294,18 @@ const Quiz = () => {
           {/* Allergens */}
           {(() => {
             const m: ModeKey = "allergens";
-            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const { tag, bg, textColor, border } = QUIZ_CARD_META[m];
             const count = questionsForMode(m).length;
             return (
               <button
                 onClick={() => startMode(m)}
-                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
-                style={{ height: 150 }}
+                className={`relative overflow-hidden border ${border} ${bg} rounded-2xl p-4 text-left flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]`}
+                style={{ height: 140, boxShadow: "0 2px 8px rgba(26,26,26,0.06), 0 0 0 1px rgba(214,206,195,0.3)" }}
               >
-                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
-                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div className={`text-[9px] uppercase tracking-[0.12em] ${textColor} opacity-40 font-sans`}>{tag}</div>
                 <div>
-                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
-                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                  <div className={`font-sans font-black text-[20px] ${textColor} leading-tight tracking-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[11px] font-semibold ${textColor} opacity-50 mt-0.5`}>{count} questions</div>
                 </div>
               </button>
             );
@@ -316,19 +314,18 @@ const Quiz = () => {
           {/* The House */}
           {(() => {
             const m: ModeKey = "soho-story";
-            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const { tag, bg, textColor, border } = QUIZ_CARD_META[m];
             const count = questionsForMode(m).length;
             return (
               <button
                 onClick={() => startMode(m)}
-                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
-                style={{ height: 150 }}
+                className={`relative overflow-hidden border ${border} ${bg} rounded-2xl p-4 text-left flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]`}
+                style={{ height: 140, boxShadow: "0 2px 8px rgba(26,26,26,0.06), 0 0 0 1px rgba(214,206,195,0.3)" }}
               >
-                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
-                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div className={`text-[9px] uppercase tracking-[0.12em] ${textColor} opacity-40 font-sans`}>{tag}</div>
                 <div>
-                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
-                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                  <div className={`font-sans font-black text-[20px] ${textColor} leading-tight tracking-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[11px] font-semibold ${textColor} opacity-50 mt-0.5`}>{count} questions</div>
                 </div>
               </button>
             );
@@ -337,19 +334,18 @@ const Quiz = () => {
           {/* Wine */}
           {(() => {
             const m: ModeKey = "wine";
-            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const { tag, bg, textColor, border } = QUIZ_CARD_META[m];
             const count = questionsForMode(m).length;
             return (
               <button
                 onClick={() => startMode(m)}
-                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
-                style={{ height: 140 }}
+                className={`relative overflow-hidden border ${border} ${bg} rounded-2xl p-4 text-left flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]`}
+                style={{ height: 128, boxShadow: "0 2px 8px rgba(26,26,26,0.06), 0 0 0 1px rgba(214,206,195,0.3)" }}
               >
-                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
-                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div className={`text-[9px] uppercase tracking-[0.12em] ${textColor} opacity-40 font-sans`}>{tag}</div>
                 <div>
-                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
-                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                  <div className={`font-sans font-black text-[20px] ${textColor} leading-tight tracking-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[11px] font-semibold ${textColor} opacity-50 mt-0.5`}>{count} questions</div>
                 </div>
               </button>
             );
@@ -358,19 +354,18 @@ const Quiz = () => {
           {/* Full House — dark contrast card */}
           {(() => {
             const m: ModeKey = "full";
-            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const { tag, bg, textColor, border } = QUIZ_CARD_META[m];
             const count = questionsForMode(m).length;
             return (
               <button
                 onClick={() => startMode(m)}
-                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
-                style={{ height: 140 }}
+                className={`relative overflow-hidden border ${border} ${bg} rounded-2xl p-4 text-left flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98]`}
+                style={{ height: 128, boxShadow: "0 4px 16px rgba(26,26,26,0.18)" }}
               >
-                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.08] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
-                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div className={`text-[9px] uppercase tracking-[0.12em] ${textColor} opacity-40 font-sans`}>{tag}</div>
                 <div>
-                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
-                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                  <div className={`font-sans font-black text-[20px] ${textColor} leading-tight tracking-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[11px] font-semibold ${textColor} opacity-50 mt-0.5`}>{count} questions</div>
                 </div>
               </button>
             );
@@ -379,7 +374,7 @@ const Quiz = () => {
 
         {/* Custom mix */}
         <div className="mt-6 border-t border-sh-border pt-5">
-          <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Custom mix</div>
+          <div className="text-[10px] uppercase tracking-[0.12em] text-sh-muted mb-3 font-semibold">Custom mix</div>
           <div className="flex flex-wrap gap-2 mb-4">
             {([
               { cat: "menu"       as QuizCategory, label: "Menu"      },
@@ -394,25 +389,25 @@ const Quiz = () => {
                 <button
                   key={cat}
                   onClick={() => toggleCustomCat(cat)}
-                  className={`px-3 py-2 text-[12px] rounded-none border transition-colors ${
+                  className={`px-3 py-2 text-[12px] rounded-xl border transition-colors font-semibold ${
                     active
                       ? "bg-sh-text text-sh-bg border-sh-text"
                       : "bg-transparent text-sh-muted border-sh-border"
                   }`}
                 >
-                  {label} <span className="opacity-60 text-[10px]">{count}</span>
+                  {label} <span className="opacity-60 text-[10px] font-normal">{count}</span>
                 </button>
               );
             })}
           </div>
           <div className="flex items-center justify-between">
             <span className="text-[11px] text-sh-muted">
-              {QUIZ_QUESTIONS.filter((q) => customCats.has(q.category)).length} questions selected
+              {QUIZ_QUESTIONS.filter((q) => customCats.has(q.category)).length} selected
             </span>
             <button
               onClick={startCustom}
               disabled={customCats.size === 0}
-              className="px-5 py-2.5 text-[13px] bg-sh-btn text-sh-btn-text rounded-none disabled:opacity-40"
+              className="px-5 py-2.5 text-[13px] font-semibold bg-sh-cta text-white rounded-xl disabled:opacity-40 hover:bg-sh-cta-dark transition-colors"
             >
               Start custom →
             </button>
@@ -426,23 +421,23 @@ const Quiz = () => {
   if (done) {
     return (
       <div className="px-5 pt-10 pb-28 max-w-md md:max-w-2xl md:px-10 mx-auto flex flex-col items-center text-center">
-        <div className="font-serif text-[64px] leading-none text-sh-text">
-          {score} / {total}
+        <div className="font-sans font-black text-[72px] leading-none text-sh-text tracking-tight">
+          {score}<span className="text-sh-muted-2 text-[40px]">/{total}</span>
         </div>
-        <p className="mt-4 text-[14px] text-sh-muted">{resultCopy}</p>
-        <p className="mt-2 text-[12px] text-sh-muted">
-          Best score: {Math.max(bestScore, score)} / {total}
+        <p className="mt-4 text-[14px] text-sh-muted leading-relaxed max-w-[280px]">{resultCopy}</p>
+        <p className="mt-2 text-[11px] text-sh-muted-2">
+          Best: {Math.max(bestScore, score)} / {total}
         </p>
         <button
           onClick={reset}
-          className="mt-10 w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none"
+          className="mt-10 w-full py-3.5 text-[14px] font-semibold bg-sh-cta text-white rounded-xl hover:bg-sh-cta-dark transition-colors shadow-sh-md"
         >
           Retake quiz
         </button>
         {fromTraining ? (
           <button
             onClick={() => navigate("/insights")}
-            className="mt-3 w-full py-3 text-[14px] bg-sh-btn text-sh-btn-text rounded-none"
+            className="mt-3 w-full py-3.5 text-[14px] font-semibold border border-sh-border text-sh-text bg-transparent rounded-xl hover:bg-sh-surface transition-colors"
           >
             ← Back to training
           </button>
@@ -476,68 +471,71 @@ const Quiz = () => {
       {flash && (
         <div
           key={flash.id}
-          className={`absolute top-12 left-1/2 -translate-x-1/2 pointer-events-none z-10 whitespace-nowrap
-            ${flash.big
-              ? "font-serif text-[20px] text-sh-text animate-xp-flash"
-              : "font-sans text-[11px] text-sh-text animate-xp-flash"
-            }`}
+          className="absolute top-12 left-1/2 -translate-x-1/2 pointer-events-none z-10 whitespace-nowrap animate-xp-flash"
         >
-          {flash.text}
+          <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-white font-semibold shadow-sh-md ${flash.big ? "bg-sh-text text-[14px]" : "bg-sh-cta text-[11px]"}`}>
+            {flash.text}
+          </span>
         </div>
       )}
 
       {/* Progress */}
       <div className="flex items-center justify-between text-[12px] text-sh-muted">
         <span className="flex items-center gap-2">
-          Question {index + 1} / {total}
+          {index + 1} / {total}
           {isDrillMode && (
-            <span className="text-[9px] uppercase tracking-widest border border-sh-border px-1.5 py-0.5">
+            <span className="text-[9px] uppercase tracking-[0.12em] border border-sh-border px-1.5 py-0.5 rounded-md font-semibold text-sh-cta border-sh-cta opacity-70">
               Drill
             </span>
           )}
         </span>
-        <span>{score} / {index + (answered ? 1 : 0)} correct</span>
+        <span className="font-semibold">{score} correct</span>
       </div>
-      <div className="mt-2 h-px w-full bg-sh-border relative">
+      <div className="mt-2 h-1.5 w-full bg-sh-border rounded-full overflow-hidden">
         <div
-          className="absolute inset-y-0 left-0 bg-sh-text transition-all"
-          style={{ width: `${((index + (answered ? 1 : 0)) / total) * 100}%` }}
+          className="h-full rounded-full transition-all duration-300"
+          style={{
+            width: `${((index + (answered ? 1 : 0)) / total) * 100}%`,
+            background: "linear-gradient(90deg, #C4A882, #D94F2E)",
+          }}
         />
       </div>
 
       {/* Question card */}
-      <div className="mt-6 bg-sh-surface border border-sh-border rounded-none p-6">
+      <div className="mt-6 bg-sh-surface border border-sh-border rounded-2xl p-6"
+        style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}
+      >
         <div className="flex items-center justify-between mb-3">
-          <span className={`text-[10px] uppercase tracking-widest font-sans ${DIFF_COLOUR[q.difficulty]}`}>
+          <span className={`text-[10px] uppercase tracking-[0.12em] font-semibold ${DIFF_COLOUR[q.difficulty]}`}>
             {DIFF_LABEL[q.difficulty]}
           </span>
-          <span className="text-[10px] text-sh-muted uppercase tracking-widest">
+          <span className="text-[10px] text-sh-muted uppercase tracking-[0.1em]">
             {q.category === "soho-story" ? "the house" : q.category}
           </span>
         </div>
-        <h2 className="font-serif text-[24px] font-normal text-sh-text leading-relaxed">
+        <h2 className="font-sans font-black text-[22px] text-sh-text leading-snug tracking-tight">
           {q.question}
         </h2>
       </div>
 
       {/* Options */}
-      <div className="mt-5 flex flex-col gap-2">
+      <div className="mt-4 flex flex-col gap-2">
         {q.options.map((opt, i) => {
           const isCorrect = i === q.correctIndex;
           const isPicked  = selected === i;
-          let cls   = "bg-sh-bg border-sh-border text-sh-text";
+          let cls   = "bg-sh-bg border-sh-border text-sh-text hover:border-sh-border-strong";
           let extra = "";
           if (answered) {
-            if (isCorrect)     { cls = "bg-sh-surface border-sh-text text-sh-text"; }
-            else if (isPicked) { cls = "bg-sh-bg border-sh-muted text-sh-muted"; extra = "line-through"; }
-            else               { cls = "bg-sh-bg border-sh-border text-sh-muted"; }
+            if (isCorrect)     { cls = "bg-sh-success-light border-sh-success text-sh-text"; }
+            else if (isPicked) { cls = "bg-sh-error-light border-sh-error-border text-sh-error"; extra = "line-through"; }
+            else               { cls = "bg-sh-bg border-sh-border text-sh-muted opacity-60"; }
           }
           return (
             <button
               key={i}
               onClick={() => choose(i)}
               disabled={answered}
-              className={`w-full text-left px-4 py-3 text-[14px] border rounded-none transition-colors ${cls} ${extra}`}
+              className={`w-full text-left px-4 py-3.5 text-[14px] border rounded-xl transition-all duration-150 ${cls} ${extra}`}
             >
               {opt}
             </button>
@@ -547,7 +545,7 @@ const Quiz = () => {
 
       {/* Explanation */}
       {answered && (
-        <p className="mt-4 text-[12px] italic text-sh-muted leading-relaxed">
+        <p className="mt-4 text-[12px] text-sh-muted leading-relaxed px-1">
           {q.explanation}
         </p>
       )}
@@ -556,9 +554,9 @@ const Quiz = () => {
       {answered && (
         <button
           onClick={next}
-          className="mt-6 w-full py-3 text-[14px] bg-sh-btn text-sh-btn-text rounded-none"
+          className="mt-5 w-full py-3.5 text-[14px] font-semibold bg-sh-cta text-white rounded-xl hover:bg-sh-cta-dark transition-colors shadow-sh-md"
         >
-          {isLast ? "See results" : "Next"}
+          {isLast ? "See results →" : "Next →"}
         </button>
       )}
     </div>

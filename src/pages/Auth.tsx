@@ -45,7 +45,7 @@ const Auth = () => {
   return (
     <div className="h-screen min-h-screen overflow-hidden bg-sh-bg flex items-center justify-center px-5">
       <div className="w-full max-w-sm flex flex-col gap-5">
-        <h1 className="font-serif text-[48px] text-sh-text text-center leading-none mb-4">
+        <h1 className="font-sans font-black text-[48px] text-sh-text text-center leading-none tracking-tight mb-4">
           Soho Mate
         </h1>
 

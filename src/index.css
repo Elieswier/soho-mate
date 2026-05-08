@@ -146,13 +146,14 @@ All colors MUST be HSL.
   }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', 'Plus Jakarta Sans', sans-serif;
     font-weight: 400;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 400;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 900;
+    letter-spacing: -0.025em;
   }
 }
 

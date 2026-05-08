@@ -14,8 +14,12 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"DM Sans"', 'sans-serif'],
-        serif: ['"Cormorant Garamond"', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        body: ['"Inter"', 'sans-serif'],
+        serif: ['"Plus Jakarta Sans"', 'sans-serif'],
+      },
+      fontWeight: {
+        black: "900",
       },
       colors: {
         sh: {
@@ -32,6 +36,15 @@ export default {
           white: "#FFFFFF",
           accent: "#C4A882",
           "accent-light": "#F5EDE0",
+          // New 2026 tokens
+          cta: "#D94F2E",
+          "cta-light": "#FEF0EC",
+          "cta-dark": "#B03A1E",
+          success: "#22C55E",
+          "success-light": "#F0FDF4",
+          error: "#EF4444",
+          "error-light": "#FEF2F2",
+          "error-border": "#FECACA",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
