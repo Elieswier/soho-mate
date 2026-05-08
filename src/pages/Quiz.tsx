@@ -236,52 +236,149 @@ const Quiz = () => {
 
   // ── MODE SELECTOR ──────────────────────────────────────────────────────────
   if (screen === "select") {
-    const modes: ModeKey[] = ["menu", "allergens", "soho-story", "wine", "full"];
-    return (
-      <div className="px-6 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
-        <h1 className="font-serif text-[32px] text-sh-text leading-tight">Quiz</h1>
-        <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your focus</p>
+    const QUIZ_CARD_META: Record<ModeKey, { tag: string; bg: string; textColor: string; numColor: string }> = {
+      menu:         { tag: "Dishes · descriptions · allergens", bg: "bg-[#F0EAE0]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      allergens:    { tag: "Safe service · 14 allergens",       bg: "bg-[#EDE8E0]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      "soho-story": { tag: "Culture · story · Soho TLV",        bg: "bg-[#E8E2D8]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      wine:         { tag: "Varietals · service · pairings",    bg: "bg-[#E8E2D8]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      full:         { tag: "All categories · mixed difficulty", bg: "bg-sh-text",   textColor: "text-sh-bg",   numColor: "text-sh-bg"   },
+    };
 
-        {/* Daily Drill */}
-        <div className="mt-5 border border-sh-text rounded-none p-4 flex items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <Zap size={20} strokeWidth={1.5} className="text-sh-text flex-shrink-0 mt-0.5" />
-            <div>
-              <div className="font-serif text-[20px] text-sh-text leading-tight">Daily Drill</div>
-              <div className="text-[11px] text-sh-muted mt-0.5">5 questions · mixed · right now</div>
-            </div>
-          </div>
-          <button
-            onClick={startDrill}
-            className="px-5 py-2.5 text-[13px] bg-sh-btn text-sh-btn-text rounded-none whitespace-nowrap flex-shrink-0"
-          >
-            Start →
-          </button>
+    return (
+      <div className="px-5 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
+        {/* Header */}
+        <div className="flex items-end justify-between mb-5">
+          <h1 className="font-serif text-[40px] md:text-[52px] text-sh-text leading-none">Quiz</h1>
+          <span className="text-[11px] text-sh-muted mb-1">{QUIZ_QUESTIONS.length} questions</span>
         </div>
 
-        {/* Mode cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
-          {modes.map((m) => {
+        {/* Daily Drill — dark featured card */}
+        <button
+          onClick={startDrill}
+          className="w-full bg-sh-text text-sh-bg rounded-none p-5 text-left flex items-center justify-between gap-4 mb-3 transition-opacity hover:opacity-90 active:opacity-75"
+          style={{ minHeight: 88 }}
+        >
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Zap size={13} strokeWidth={1.5} className="opacity-60" />
+              <span className="text-[9px] uppercase tracking-widest opacity-50">Daily Drill</span>
+            </div>
+            <div className="font-serif text-[24px] leading-tight">5 questions · right now</div>
+            <div className="text-[11px] opacity-50 mt-0.5">Mixed · changes every day</div>
+          </div>
+          <span className="font-serif text-[28px] opacity-25 flex-shrink-0">→</span>
+        </button>
+
+        {/* Bento grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Menu — wide */}
+          {(() => {
+            const m: ModeKey = "menu";
+            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
             const count = questionsForMode(m).length;
             return (
               <button
-                key={m}
                 onClick={() => startMode(m)}
-                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left flex flex-col justify-between"
-                style={{ minHeight: "clamp(80px, 22vw, 260px)" }}
+                className={`col-span-2 relative overflow-hidden ${bg} rounded-none p-5 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
+                style={{ height: 160 }}
               >
-                <div className="text-sh-muted">{MODE_META[m].icon}</div>
+                <div className={`absolute bottom-2 right-4 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 120 }}>{count}</div>
+                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
                 <div>
-                  <div className="font-serif text-[22px] text-sh-text leading-tight">{MODE_META[m].name}</div>
-                  <div className="font-sans text-[11px] text-sh-muted mt-1">{count} questions</div>
+                  <div className={`font-serif text-[30px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
                 </div>
               </button>
             );
-          })}
+          })()}
+
+          {/* Allergens */}
+          {(() => {
+            const m: ModeKey = "allergens";
+            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const count = questionsForMode(m).length;
+            return (
+              <button
+                onClick={() => startMode(m)}
+                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
+                style={{ height: 150 }}
+              >
+                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
+                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div>
+                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                </div>
+              </button>
+            );
+          })()}
+
+          {/* The House */}
+          {(() => {
+            const m: ModeKey = "soho-story";
+            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const count = questionsForMode(m).length;
+            return (
+              <button
+                onClick={() => startMode(m)}
+                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
+                style={{ height: 150 }}
+              >
+                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
+                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div>
+                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                </div>
+              </button>
+            );
+          })()}
+
+          {/* Wine */}
+          {(() => {
+            const m: ModeKey = "wine";
+            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const count = questionsForMode(m).length;
+            return (
+              <button
+                onClick={() => startMode(m)}
+                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
+                style={{ height: 140 }}
+              >
+                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.06] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
+                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div>
+                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                </div>
+              </button>
+            );
+          })()}
+
+          {/* Full House — dark contrast card */}
+          {(() => {
+            const m: ModeKey = "full";
+            const { tag, bg, textColor, numColor } = QUIZ_CARD_META[m];
+            const count = questionsForMode(m).length;
+            return (
+              <button
+                onClick={() => startMode(m)}
+                className={`relative overflow-hidden ${bg} rounded-none p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75`}
+                style={{ height: 140 }}
+              >
+                <div className={`absolute bottom-1 right-3 font-serif leading-none select-none pointer-events-none opacity-[0.08] ${numColor}`} style={{ fontSize: 90 }}>{count}</div>
+                <div className={`text-[9px] uppercase tracking-widest ${textColor} opacity-50`}>{tag}</div>
+                <div>
+                  <div className={`font-serif text-[22px] ${textColor} leading-tight`}>{MODE_META[m].name}</div>
+                  <div className={`text-[10px] ${textColor} opacity-40 mt-0.5`}>{count} questions</div>
+                </div>
+              </button>
+            );
+          })()}
         </div>
 
         {/* Custom mix */}
-        <div className="mt-8 border-t border-sh-border pt-6">
+        <div className="mt-6 border-t border-sh-border pt-5">
           <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-3">Custom mix</div>
           <div className="flex flex-wrap gap-2 mb-4">
             {([
@@ -317,7 +414,7 @@ const Quiz = () => {
               disabled={customCats.size === 0}
               className="px-5 py-2.5 text-[13px] bg-sh-btn text-sh-btn-text rounded-none disabled:opacity-40"
             >
-              Start custom quiz →
+              Start custom →
             </button>
           </div>
         </div>

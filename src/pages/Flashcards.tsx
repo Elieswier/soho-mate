@@ -175,30 +175,120 @@ const Flashcards = () => {
 
   // ── MODE SELECTOR ─────────────────────────────────────────────
   if (screen === "select") {
-    const modes: ModeKey[] = ["menu", "house", "wine", "floor", "full"];
+    const DECK_META: Record<ModeKey, { tag: string; bg: string; textColor: string; numColor: string }> = {
+      menu:  { tag: "Dishes · allergens · descriptions", bg: "bg-[#F0EAE0]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      house: { tag: "Culture · story · Soho TLV",        bg: "bg-[#EDE8E0]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      wine:  { tag: "Varietals · service · pairings",    bg: "bg-[#E8E2D8]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      floor: { tag: "Service standards & scripts",       bg: "bg-[#F0EAE0]", textColor: "text-sh-text", numColor: "text-sh-text" },
+      full:  { tag: "All decks · weakest cards first",   bg: "bg-sh-text",   textColor: "text-sh-bg",   numColor: "text-sh-bg"   },
+    };
+
     return (
-      <div className="px-6 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
-        <h1 className="font-serif text-[32px] md:text-[48px] text-sh-text leading-tight">Study</h1>
-        <p className="font-sans text-[12px] text-sh-muted mt-1">Choose your deck</p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-          {modes.map((m) => (
-            <div key={m} className="flex flex-col gap-2">
-              <button
-                onClick={() => openMode(m)}
-                className="bg-[#F0EAE0] border border-sh-border rounded-none p-5 text-left flex flex-col justify-between"
-                style={{ minHeight: "clamp(80px, 22vw, 260px)" }}
-              >
-                <div className="font-serif text-[22px] md:text-[28px] text-sh-text leading-tight">{MODE_META[m].name}</div>
-                <div className="font-sans text-[11px] text-sh-muted mt-1">{counts[m]} cards</div>
-              </button>
-              <button
-                onClick={() => quizForMode(m)}
-                className="text-[11px] text-sh-muted border border-sh-border rounded-none bg-transparent py-2"
-              >
-                Quiz this deck
-              </button>
-            </div>
-          ))}
+      <div className="px-5 pt-6 pb-28 max-w-md md:max-w-4xl md:px-10 mx-auto overflow-x-hidden">
+        <div className="flex items-end justify-between mb-6">
+          <h1 className="font-serif text-[40px] md:text-[52px] text-sh-text leading-none">Study</h1>
+          <span className="font-sans text-[11px] text-sh-muted mb-1">{counts.full} cards total</span>
+        </div>
+
+        {/* Bento grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+
+          {/* The Menu — wide hero */}
+          <div className="col-span-2 flex flex-col gap-2">
+            <button
+              onClick={() => openMode("menu")}
+              className={`relative overflow-hidden border border-sh-border p-5 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75 ${DECK_META.menu.bg}`}
+              style={{ height: "160px" }}
+            >
+              <div className={`absolute -bottom-4 -right-2 font-serif text-[110px] leading-none pointer-events-none select-none opacity-[0.06] ${DECK_META.menu.numColor}`}>
+                {counts.menu}
+              </div>
+              <div className={`font-serif text-[28px] leading-tight ${DECK_META.menu.textColor}`}>The Menu</div>
+              <div>
+                <div className={`font-sans text-[10px] uppercase tracking-widest opacity-50 ${DECK_META.menu.textColor}`}>{DECK_META.menu.tag}</div>
+                <div className={`font-sans text-[12px] mt-1 ${DECK_META.menu.textColor}`}>{counts.menu} cards</div>
+              </div>
+            </button>
+            <button onClick={() => quizForMode("menu")} className="text-[11px] text-sh-muted border border-sh-border bg-transparent py-2 hover:bg-sh-surface transition-colors">
+              Quiz this deck
+            </button>
+          </div>
+
+          {/* The House */}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => openMode("house")}
+              className={`relative overflow-hidden border border-sh-border p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75 ${DECK_META.house.bg}`}
+              style={{ height: "160px" }}
+            >
+              <div className={`absolute -bottom-4 -right-2 font-serif text-[80px] leading-none pointer-events-none select-none opacity-[0.06] ${DECK_META.house.numColor}`}>
+                {counts.house}
+              </div>
+              <div className={`font-serif text-[22px] leading-tight ${DECK_META.house.textColor}`}>The House</div>
+              <div className={`font-sans text-[12px] ${DECK_META.house.textColor}`}>{counts.house} cards</div>
+            </button>
+            <button onClick={() => quizForMode("house")} className="text-[11px] text-sh-muted border border-sh-border bg-transparent py-2 hover:bg-sh-surface transition-colors">
+              Quiz this deck
+            </button>
+          </div>
+
+          {/* Wine */}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => openMode("wine")}
+              className={`relative overflow-hidden border border-sh-border p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75 ${DECK_META.wine.bg}`}
+              style={{ height: "160px" }}
+            >
+              <div className={`absolute -bottom-4 -right-2 font-serif text-[80px] leading-none pointer-events-none select-none opacity-[0.06] ${DECK_META.wine.numColor}`}>
+                {counts.wine}
+              </div>
+              <div className={`font-serif text-[22px] leading-tight ${DECK_META.wine.textColor}`}>Wine</div>
+              <div className={`font-sans text-[12px] ${DECK_META.wine.textColor}`}>{counts.wine} cards</div>
+            </button>
+            <button onClick={() => quizForMode("wine")} className="text-[11px] text-sh-muted border border-sh-border bg-transparent py-2 hover:bg-sh-surface transition-colors">
+              Quiz this deck
+            </button>
+          </div>
+
+          {/* The Floor — small */}
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => openMode("floor")}
+              className={`relative overflow-hidden border border-sh-border p-4 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75 ${DECK_META.floor.bg}`}
+              style={{ height: "130px" }}
+            >
+              <div className={`absolute -bottom-4 -right-2 font-serif text-[70px] leading-none pointer-events-none select-none opacity-[0.06] ${DECK_META.floor.numColor}`}>
+                {counts.floor}
+              </div>
+              <div className={`font-serif text-[20px] leading-tight ${DECK_META.floor.textColor}`}>The Floor</div>
+              <div className={`font-sans text-[12px] ${DECK_META.floor.textColor}`}>{counts.floor} cards</div>
+            </button>
+            <button onClick={() => quizForMode("floor")} className="text-[11px] text-sh-muted border border-sh-border bg-transparent py-2 hover:bg-sh-surface transition-colors">
+              Quiz this deck
+            </button>
+          </div>
+
+          {/* Full House — dark hero, 3 cols on desktop */}
+          <div className="col-span-1 md:col-span-3 flex flex-col gap-2">
+            <button
+              onClick={() => openMode("full")}
+              className={`relative overflow-hidden border border-sh-text p-5 text-left flex flex-col justify-between transition-opacity hover:opacity-90 active:opacity-75 ${DECK_META.full.bg}`}
+              style={{ height: "130px" }}
+            >
+              <div className="absolute -bottom-4 -right-2 font-serif text-[110px] leading-none pointer-events-none select-none opacity-[0.08] text-sh-bg">
+                {counts.full}
+              </div>
+              <div className="flex items-center justify-between">
+                <div className={`font-serif text-[26px] leading-tight ${DECK_META.full.textColor}`}>Full House</div>
+                <div className={`font-sans text-[10px] uppercase tracking-widest opacity-60 ${DECK_META.full.textColor}`}>All decks</div>
+              </div>
+              <div className={`font-sans text-[11px] opacity-70 ${DECK_META.full.textColor}`}>Weakest cards surface first · {counts.full} cards</div>
+            </button>
+            <button onClick={() => quizForMode("full")} className="text-[11px] text-sh-muted border border-sh-border bg-transparent py-2 hover:bg-sh-surface transition-colors">
+              Quiz this deck
+            </button>
+          </div>
+
         </div>
       </div>
     );
