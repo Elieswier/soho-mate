@@ -273,9 +273,7 @@ const Flashcards = () => {
               </div>
               <div>
                 <div className="font-sans text-[9px] uppercase tracking-[0.14em] opacity-40 text-sh-bg mb-1">All decks</div>
-                <div className="font-sans text-[11px] opacity-60 text-sh-bg">
-                  Weakest cards first · {counts.full} cards
-                </div>
+                <div className="font-sans text-[11px] font-semibold opacity-60 text-sh-bg">{counts.full} cards</div>
               </div>
             </button>
             <button
