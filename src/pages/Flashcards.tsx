@@ -271,11 +271,11 @@ const Flashcards = () => {
               <div className="font-sans font-black text-[26px] leading-tight tracking-tight text-sh-bg">
                 Full House
               </div>
-              <div className="flex items-end justify-between">
+              <div>
+                <div className="font-sans text-[9px] uppercase tracking-[0.14em] opacity-40 text-sh-bg mb-1">All decks</div>
                 <div className="font-sans text-[11px] opacity-60 text-sh-bg">
                   Weakest cards first · {counts.full} cards
                 </div>
-                <div className="font-sans text-[10px] uppercase tracking-[0.14em] opacity-50 text-sh-bg">All decks</div>
               </div>
             </button>
             <button
