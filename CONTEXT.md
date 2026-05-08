@@ -142,6 +142,28 @@ Conçue initialement pour Elie lui-même — pour apprendre le menu, tracker ses
 
 ---
 
+## 📅 Première semaine de travail (10–16 mai 2026)
+
+**Statut :** Waiter Trainee — **45 NIS/h, pas de tips pendant la formation**
+
+| Jour | Date | Horaires | Heures | Trainer |
+|------|------|----------|--------|---------|
+| Dimanche | 10/05 | 09:00–17:00 | 8h | Zoher Dalak |
+| Lundi | 11/05 | 09:00–17:00 | 8h | Sofia Amelina |
+| Mardi | 12/05 | 08:00–16:00 | 8h | Mohammed Motran |
+| Mercredi | 13/05 | 09:00–17:00 | 8h | Mohammed Motran |
+| Jeudi | 14/05 | OFF | — | — |
+| Vendredi | 15/05 | OFF | — | — |
+| Samedi | 16/05 | 16:00–00:00 | 8h | Zoher Dalak |
+
+**Total semaine 1 :** 40h × 45 NIS = **1 800 NIS** (brut, sans tips)
+
+**Événements notables :** Fashion workshop (lun), Writer's Club (mar), Hip-Hop party (jeu), Team BBQ (sam)
+
+> Après la période de formation : passage à **50 NIS/h + tips**
+
+---
+
 ## 🗓️ Journal des sessions
 
 | Date | Ce qui a été fait |
@@ -149,6 +171,7 @@ Conçue initialement pour Elie lui-même — pour apprendre le menu, tracker ses
 | Avant mai 2026 | Construction complète de l'app (flashcards, quiz, XP, shifts, training plan) |
 | Mai 2026 | Redesign 2026 : bento grid, glassmorphism, pill nav, animations |
 | 8 mai 2026 | Récupération du contexte + création de ce fichier CONTEXT.md |
+| 9 mai 2026 | Audit visuel complet : Scripts, Profile, LogShift, TrainingPlan, Flashcards, Quiz — police font-sans font-black partout, terracotta CTAs, rounded-2xl cards, rounded-xl buttons, Recharts colorés |
 
 ---
 

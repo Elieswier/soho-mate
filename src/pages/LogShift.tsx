@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
+import { useShifts } from "@/hooks/useShifts";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Shift, DAYS, calcHours } from "@/lib/shifts";
 
@@ -28,7 +30,7 @@ const Pill = ({
 );
 
 const LogShift = () => {
-  const [shifts, setShifts] = useLocalStorage<Shift[]>("sh_shifts", []);
+  const { shifts, addShift, deleteShift } = useShifts();
   const [hourlyRate] = useLocalStorage<number>("sh_hourly_rate", 50);
 
   const [date, setDate] = useState(todayISO());
@@ -40,6 +42,7 @@ const LogShift = () => {
   const [covers, setCovers] = useState<string>("");
   const [confidence, setConfidence] = useState(7);
   const [notes, setNotes] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   const hours = useMemo(() => calcHours(startTime, endTime), [startTime, endTime]);
   const basePay = Math.round(hours * hourlyRate);
@@ -74,14 +77,25 @@ const LogShift = () => {
       confidence,
       notes,
     };
-    setShifts([shift, ...shifts]);
+    addShift(shift);
     toast(`Shift logged — ${total} NIS today`, { duration: 2000, position: "bottom-center" });
     setTips("");
     setCovers("");
     setNotes("");
   };
 
-  const recent = shifts.slice(0, 3);
+  const handleDelete = (id: number) => {
+    if (confirmDeleteId === id) {
+      deleteShift(id);
+      setConfirmDeleteId(null);
+      toast("Shift deleted", { duration: 1500, position: "bottom-center" });
+    } else {
+      setConfirmDeleteId(id);
+      setTimeout(() => setConfirmDeleteId(null), 3000);
+    }
+  };
+
+  const recent = shifts.slice(0, 5);
 
   return (
     <div className="w-full px-5 pt-6 pb-28 max-w-md md:max-w-4xl mx-auto md:px-10 flex flex-col gap-5 overflow-x-hidden">
@@ -238,13 +252,29 @@ const LogShift = () => {
             {recent.map((s) => (
               <div
                 key={s.id}
-                className="flex items-center justify-between py-2.5 text-[12px] border-b border-sh-border last:border-b-0"
+                className="flex items-center justify-between py-2.5 text-[12px] border-b border-sh-border last:border-b-0 gap-2"
               >
-                <span className="text-sh-muted">{s.date} · {(s.areas && s.areas.length ? s.areas.join(" + ") : s.area)} · {s.type}</span>
-                <span className="text-sh-text">{s.total} NIS</span>
+                <span className="text-sh-muted flex-1 min-w-0 truncate">
+                  {s.date} · {(s.areas && s.areas.length ? s.areas.join(" + ") : s.area)} · {s.type}
+                </span>
+                <span className="text-sh-text font-medium shrink-0">{s.total} ₪</span>
+                <button
+                  onClick={() => handleDelete(s.id)}
+                  className={`shrink-0 p-1 rounded-lg transition-colors ${
+                    confirmDeleteId === s.id
+                      ? "text-white bg-sh-error"
+                      : "text-sh-muted hover:text-sh-error"
+                  }`}
+                  aria-label="Delete shift"
+                >
+                  <Trash2 size={13} strokeWidth={1.5} />
+                </button>
               </div>
             ))}
           </div>
+          {confirmDeleteId !== null && (
+            <p className="text-[10px] text-sh-muted mt-1">Tap again to confirm delete</p>
+          )}
         </div>
       )}
     </div>

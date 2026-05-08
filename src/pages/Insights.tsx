@@ -12,6 +12,7 @@ import {
   Tooltip,
 } from "recharts";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useShifts } from "@/hooks/useShifts";
 import { Shift, DAYS } from "@/lib/shifts";
 import TrainingPlan from "@/components/TrainingPlan";
 
@@ -26,7 +27,7 @@ const ShiftStat = ({ label, value }: { label: string; value: string }) => (
 
 const Insights = () => {
   const [tab, setTab] = useState<"training" | "shifts">("training");
-  const [shifts] = useLocalStorage<Shift[]>("sh_shifts", []);
+  const { shifts } = useShifts();
 
   const prevCountRef = useRef<number | null>(null);
 
