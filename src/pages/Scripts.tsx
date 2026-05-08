@@ -233,13 +233,13 @@ const ScriptCard = ({ script }: { script: Script }) => {
   };
 
   return (
-    <div className="bg-sh-surface border border-sh-border border-l-2 border-l-sh-text rounded-none">
+    <div className="bg-sh-surface border border-sh-border border-l-[3px] border-l-sh-cta rounded-xl" style={{ boxShadow: "0 2px 6px rgba(26,26,26,0.04)" }}>
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="w-full text-left p-3 flex items-start justify-between gap-2"
+        className="w-full text-left p-4 flex items-start justify-between gap-2"
       >
         <p
-          className="font-serif text-[15px] italic text-sh-text leading-snug flex-1"
+          className="font-body text-[14px] italic text-sh-text leading-snug flex-1"
           style={{ direction: isHebrew ? "rtl" : "ltr" }}
         >
           {preview}{lines.length > 1 && !expanded ? " …" : ""}
@@ -252,18 +252,18 @@ const ScriptCard = ({ script }: { script: Script }) => {
       </button>
 
       {expanded && (
-        <div className="px-3 pb-3 flex flex-col gap-2">
+        <div className="px-4 pb-4 flex flex-col gap-3">
           <p
-            className="font-serif text-[15px] italic text-sh-text whitespace-pre-line leading-relaxed"
+            className="font-body text-[14px] italic text-sh-text whitespace-pre-line leading-relaxed"
             style={{ direction: isHebrew ? "rtl" : "ltr" }}
           >
             {script.text}
           </p>
           <button
             onClick={handleCopy}
-            className="self-start flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-sh-muted border border-sh-border px-2 py-1 mt-1"
+            className="self-start flex items-center gap-1.5 text-[10px] uppercase tracking-[0.1em] font-semibold text-sh-cta border border-sh-cta-light bg-sh-cta-light px-3 py-1.5 rounded-lg hover:bg-sh-cta hover:text-white transition-colors"
           >
-            <Copy size={10} strokeWidth={1.5} />
+            <Copy size={10} strokeWidth={2} />
             Copy
           </button>
         </div>
@@ -281,7 +281,7 @@ const AccordionSection = ({ title, scripts }: { title: string; scripts: Script[]
         onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between pb-2 mb-1 border-b border-sh-border"
       >
-        <span className="text-[10px] uppercase tracking-widest text-sh-muted">{title}</span>
+        <span className="text-[10px] uppercase tracking-[0.12em] font-semibold text-sh-muted">{title}</span>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-sh-muted">{scripts.length}</span>
           <ChevronDown
@@ -310,7 +310,9 @@ const Scripts = () => {
     section.scripts.filter((s) => !s.badge || s.badge === lang);
 
   return (
-    <div className="px-5 pt-4 pb-28 max-w-md md:max-w-4xl mx-auto md:px-10 flex flex-col gap-4">
+    <div className="px-5 pt-6 pb-28 max-w-md md:max-w-4xl mx-auto md:px-10 flex flex-col gap-5">
+      <h1 className="font-sans font-black text-[44px] md:text-[56px] text-sh-text leading-none tracking-tight">Scripts</h1>
+
       <div className="flex gap-2">
         {langs.map((l) => {
           const active = l === lang;
@@ -318,10 +320,10 @@ const Scripts = () => {
             <button
               key={l}
               onClick={() => setLang(l)}
-              className={`px-3 py-1.5 text-[10px] uppercase tracking-wide rounded-none border ${
+              className={`px-4 py-2 text-[11px] uppercase tracking-[0.1em] font-semibold rounded-xl border transition-all duration-150 ${
                 active
-                  ? "bg-sh-text text-sh-bg border-sh-text"
-                  : "bg-transparent text-sh-muted border-sh-border"
+                  ? "bg-sh-text text-sh-bg border-sh-text shadow-sh-sm"
+                  : "bg-transparent text-sh-muted border-sh-border hover:border-sh-border-strong"
               }`}
             >
               {l}

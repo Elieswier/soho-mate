@@ -52,7 +52,7 @@ const DayList = ({ allProgress, onSelect }: DayListProps) => {
   return (
     <div className="flex flex-col gap-3">
       <div className="mb-1">
-        <div className="font-serif text-[28px] text-sh-text leading-tight">The Runway</div>
+        <div className="font-sans font-black text-[32px] text-sh-text leading-tight tracking-tight">The Runway</div>
         <div className="text-[12px] text-sh-muted mt-1">
           7 days. Complete each to unlock the next.
         </div>
@@ -70,9 +70,10 @@ const DayList = ({ allProgress, onSelect }: DayListProps) => {
             key={day.day}
             disabled={!unlocked}
             onClick={() => onSelect(day.day)}
-            className={`w-full text-left bg-sh-surface border border-sh-border rounded-none p-4 flex items-start gap-3 transition-opacity ${
+            className={`w-full text-left bg-sh-surface border border-sh-border rounded-2xl p-4 flex items-start gap-3 transition-all duration-200 hover:-translate-y-0.5 ${
               !unlocked ? "opacity-40 cursor-default" : ""
             }`}
+            style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}
           >
             {/* day number */}
             <div className="flex-shrink-0 w-8 text-[10px] uppercase tracking-widest text-sh-muted pt-1">
@@ -81,20 +82,20 @@ const DayList = ({ allProgress, onSelect }: DayListProps) => {
 
             {/* content */}
             <div className="flex-1 min-w-0">
-              <div className="font-serif text-[20px] text-sh-text leading-tight">{day.title}</div>
+              <div className="font-sans font-black text-[18px] text-sh-text leading-tight tracking-tight">{day.title}</div>
               <div className="text-[11px] text-sh-muted mt-0.5 leading-snug">{day.theme}</div>
 
               {/* progress bar — only show if unlocked and not complete */}
               {unlocked && !complete && done > 0 && (
-                <div className="mt-2 h-0.5 w-full bg-sh-border rounded-none">
+                <div className="mt-2 h-1 w-full bg-sh-border rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-sh-text transition-all"
-                    style={{ width: `${Math.round((done / total) * 100)}%` }}
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${Math.round((done / total) * 100)}%`, background: "linear-gradient(90deg, #C4A882, #D94F2E)" }}
                   />
                 </div>
               )}
               {unlocked && !complete && done === 0 && (
-                <div className="mt-2 h-0.5 w-full bg-sh-border rounded-none" />
+                <div className="mt-2 h-1 w-full bg-sh-border rounded-full" />
               )}
             </div>
 
@@ -127,7 +128,7 @@ type ActivityRowProps = {
 };
 
 const ActivityRow = ({ icon, label, description, done, onToggle, cta }: ActivityRowProps) => (
-  <div className={`bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3 transition-opacity ${done ? "opacity-60" : ""}`}>
+  <div className={`bg-sh-surface border border-sh-border rounded-2xl p-4 flex flex-col gap-3 transition-opacity ${done ? "opacity-60" : ""}`} style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}>
     <div className="flex items-start justify-between gap-3">
       <div className="flex items-start gap-3 flex-1 min-w-0">
         <div className="flex-shrink-0 mt-0.5 text-sh-muted">{icon}</div>
@@ -194,19 +195,19 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
       </div>
 
       <div>
-        <div className="font-serif text-[30px] text-sh-text leading-tight">{dayData.title}</div>
+        <div className="font-sans font-black text-[28px] text-sh-text leading-tight tracking-tight">{dayData.title}</div>
         <div className="text-[12px] text-sh-muted mt-1">{dayData.theme}</div>
       </div>
 
       {/* overall progress */}
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-0.5 bg-sh-border">
+        <div className="flex-1 h-1 bg-sh-border rounded-full overflow-hidden">
           <div
-            className="h-full bg-sh-text transition-all"
-            style={{ width: `${Math.round((done / total) * 100)}%` }}
+            className="h-full rounded-full transition-all"
+            style={{ width: `${Math.round((done / total) * 100)}%`, background: "linear-gradient(90deg, #C4A882, #D94F2E)" }}
           />
         </div>
-        <div className="text-[10px] text-sh-muted whitespace-nowrap">{done} / {total}</div>
+        <div className="text-[10px] font-semibold text-sh-muted whitespace-nowrap">{done} / {total}</div>
       </div>
 
       {/* 1. Flashcards */}
@@ -219,7 +220,7 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
         cta={
           <button
             onClick={() => navigate(flashcardLink)}
-            className="text-[11px] text-sh-text underline underline-offset-2"
+            className="text-[11px] font-semibold text-sh-cta"
           >
             Open Flashcards →
           </button>
@@ -236,7 +237,7 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
         cta={
           <button
             onClick={() => navigate(quizLink)}
-            className="text-[11px] text-sh-text underline underline-offset-2"
+            className="text-[11px] font-semibold text-sh-cta"
           >
             Open Quiz →
           </button>
@@ -244,7 +245,7 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
       />
 
       {/* 3. Script */}
-      <div className={`bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3 transition-opacity ${progress.script ? "opacity-60" : ""}`}>
+      <div className={`bg-sh-surface border border-sh-border rounded-2xl p-4 flex flex-col gap-3 transition-opacity ${progress.script ? "opacity-60" : ""}`} style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <div className="flex-shrink-0 mt-0.5 text-sh-muted">
@@ -276,7 +277,7 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
 
         {scriptExpanded && (
           <p
-            className="font-serif text-[18px] italic text-sh-text whitespace-pre-line leading-relaxed border-l-2 border-sh-text pl-3"
+            className="font-body italic text-[15px] text-sh-text whitespace-pre-line leading-relaxed border-l-2 border-sh-cta pl-3"
           >
             {dayData.script.text}
           </p>
@@ -284,7 +285,7 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
       </div>
 
       {/* 4. Checklist */}
-      <div className="bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3">
+      <div className="bg-sh-surface border border-sh-border rounded-2xl p-4 flex flex-col gap-3" style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}>
         <div className="flex items-center gap-3">
           <CheckSquare size={16} strokeWidth={1.5} className="text-sh-muted flex-shrink-0" />
           <div className="text-[13px] font-medium text-sh-text">Today's checklist</div>
@@ -316,8 +317,8 @@ const DayDetail = ({ dayData, progress, onBack, onProgressChange }: DayDetailPro
 
       {/* completion banner */}
       {isDayComplete(progress, dayData) && (
-        <div className="bg-sh-text text-sh-bg text-center py-3 rounded-none">
-          <div className="font-serif text-[20px]">Day {dayData.day} complete</div>
+        <div className="bg-sh-cta text-white text-center py-4 rounded-2xl" style={{ boxShadow: "0 4px 16px rgba(217,79,46,0.25)" }}>
+          <div className="font-sans font-black text-[20px] tracking-tight">Day {dayData.day} complete ✓</div>
           {dayData.day < 7 && (
             <div className="text-[11px] mt-1 opacity-70">Day {dayData.day + 1} is now unlocked</div>
           )}

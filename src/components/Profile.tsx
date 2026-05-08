@@ -154,15 +154,15 @@ const Profile = ({ open, onClose }: ProfileProps) => {
       <div className="px-5 pt-4 pb-10 max-w-md mx-auto flex flex-col gap-5">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="font-serif text-[24px] text-sh-text">Profile</h1>
+          <h1 className="font-sans font-black text-[28px] text-sh-text tracking-tight">Profile</h1>
           <button onClick={onClose} className="text-sh-muted text-[16px] min-w-[44px] min-h-[44px]" aria-label="Close">
             ✕
           </button>
         </div>
 
         {/* Me */}
-        <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-          <div className="font-serif text-[28px] text-sh-text leading-tight">Elie S.</div>
+        <div className="bg-sh-surface border border-sh-border rounded-2xl p-4" style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}>
+          <div className="font-sans font-black text-[26px] text-sh-text leading-tight tracking-tight">Elie S.</div>
           {email && <div className="mt-1 text-[12px] text-sh-muted">{email}</div>}
           {memberSince && <div className="mt-1 text-[11px] text-sh-muted">Member since {memberSince}</div>}
         </div>
@@ -170,10 +170,10 @@ const Profile = ({ open, onClose }: ProfileProps) => {
         {/* Rank */}
         <div>
           <div className="text-[10px] uppercase tracking-widest text-sh-muted mb-2">My rank</div>
-          <div className="bg-sh-surface border border-sh-border rounded-none p-4">
-            <div className="font-serif text-[24px] text-sh-text leading-tight">{rank.name}</div>
-            <div className="mt-3 h-px w-full bg-sh-border">
-              <div className="h-full bg-sh-text" style={{ width: `${progressPct}%` }} />
+          <div className="bg-sh-surface border border-sh-border rounded-2xl p-4" style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}>
+            <div className="font-sans font-black text-[22px] text-sh-text leading-tight tracking-tight">{rank.name}</div>
+            <div className="mt-3 h-1.5 w-full bg-sh-border rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all" style={{ width: `${progressPct}%`, background: "linear-gradient(90deg, #C4A882, #D94F2E)" }} />
             </div>
             <div className="mt-2 text-[11px] text-sh-muted">{progressLabel}</div>
           </div>
@@ -185,12 +185,12 @@ const Profile = ({ open, onClose }: ProfileProps) => {
 
           <div className="flex flex-col gap-2">
             <label className="text-[10px] uppercase tracking-widest text-sh-muted">Base pay per hour</label>
-            <div className="flex items-center bg-sh-surface border border-sh-border rounded-none">
+            <div className="flex items-center bg-sh-surface border border-sh-border rounded-xl">
               <input
                 type="number"
                 value={hourlyRate}
                 onChange={(e) => setHourlyRate(Number(e.target.value) || 0)}
-                className="flex-1 bg-transparent px-3 py-2 text-[14px] text-sh-text outline-none rounded-none min-h-[44px]"
+                className="flex-1 bg-transparent px-3 py-2 text-[14px] text-sh-text outline-none rounded-xl min-h-[44px]"
               />
               <span className="px-3 text-[12px] text-sh-muted">NIS</span>
             </div>
@@ -205,7 +205,7 @@ const Profile = ({ open, onClose }: ProfileProps) => {
                   <button
                     key={l}
                     onClick={() => setLanguage(l)}
-                    className={`px-4 min-h-[44px] text-[10px] uppercase rounded-none border ${
+                    className={`px-4 min-h-[44px] text-[10px] uppercase rounded-xl border ${
                       active
                         ? "bg-sh-text text-sh-bg border-sh-text"
                         : "bg-transparent text-sh-muted border-sh-border"
@@ -231,9 +231,10 @@ const Profile = ({ open, onClose }: ProfileProps) => {
               return (
                 <div
                   key={ach.id}
-                  className={`bg-sh-surface border rounded-none p-3 flex flex-col gap-1 transition-opacity ${
+                  className={`bg-sh-surface border rounded-xl p-3 flex flex-col gap-1 transition-opacity ${
                     unlocked ? "border-sh-text opacity-100" : "border-sh-border opacity-40"
                   }`}
+                  style={unlocked ? { boxShadow: "0 2px 6px rgba(26,26,26,0.06)" } : {}}
                 >
                   <div className="text-[20px] leading-none">{ach.emoji}</div>
                   <div className={`text-[12px] font-medium leading-tight ${unlocked ? "text-sh-text" : "text-sh-muted"}`}>
@@ -249,10 +250,10 @@ const Profile = ({ open, onClose }: ProfileProps) => {
         {/* Data */}
         <div className="flex flex-col gap-3">
           <div className="text-[10px] uppercase tracking-widest text-sh-muted">Data</div>
-          <button onClick={backup} className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none min-h-[44px]">
+          <button onClick={backup} className="w-full py-3 text-[14px] font-semibold bg-sh-cta text-white rounded-xl min-h-[44px] hover:bg-sh-cta-dark transition-colors shadow-sh-sm">
             Backup all data
           </button>
-          <button onClick={() => fileInputRef.current?.click()} className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none min-h-[44px]">
+          <button onClick={() => fileInputRef.current?.click()} className="w-full py-3 text-[14px] font-semibold border border-sh-border text-sh-text bg-transparent rounded-xl min-h-[44px] hover:bg-sh-surface transition-colors">
             Restore backup
           </button>
           <input
@@ -262,26 +263,26 @@ const Profile = ({ open, onClose }: ProfileProps) => {
             className="hidden"
             onChange={onRestoreFile}
           />
-          <button onClick={exportCSV} className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none min-h-[44px]">
+          <button onClick={exportCSV} className="w-full py-3 text-[14px] font-semibold border border-sh-border text-sh-text bg-transparent rounded-xl min-h-[44px] hover:bg-sh-surface transition-colors">
             Export shifts CSV
           </button>
           <button
             onClick={() => setConfirmErase(true)}
-            className="w-full py-3 text-[14px] border border-sh-text text-red-800 bg-transparent rounded-none min-h-[44px]"
+            className="w-full py-3 text-[14px] font-semibold border border-sh-error-border text-sh-error bg-sh-error-light rounded-xl min-h-[44px] hover:bg-sh-error hover:text-white transition-colors"
           >
             Erase all data
           </button>
 
           {pendingRestore && (
-            <div className="bg-sh-surface border border-sh-border rounded-none p-4 flex flex-col gap-3">
+            <div className="bg-sh-surface border border-sh-border rounded-2xl p-4 flex flex-col gap-3" style={{ boxShadow: "0 2px 8px rgba(26,26,26,0.05)" }}>
               <p className="text-[12px] text-sh-text">
                 This will replace all current data. Tap Restore to confirm.
               </p>
               <div className="flex gap-2">
-                <button onClick={confirmRestore} className="flex-1 py-3 text-[14px] bg-sh-text text-sh-bg rounded-none min-h-[44px]">
+                <button onClick={confirmRestore} className="flex-1 py-3 text-[14px] font-semibold bg-sh-cta text-white rounded-xl min-h-[44px] hover:bg-sh-cta-dark transition-colors">
                   Restore
                 </button>
-                <button onClick={() => setPendingRestore(null)} className="flex-1 py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none min-h-[44px]">
+                <button onClick={() => setPendingRestore(null)} className="flex-1 py-3 text-[14px] font-semibold border border-sh-border text-sh-text bg-transparent rounded-xl min-h-[44px] hover:bg-sh-surface transition-colors">
                   Cancel
                 </button>
               </div>
@@ -292,7 +293,7 @@ const Profile = ({ open, onClose }: ProfileProps) => {
         {/* Account */}
         <div className="flex flex-col gap-3">
           <div className="text-[10px] uppercase tracking-widest text-sh-muted">Account</div>
-          <button onClick={signOut} className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none min-h-[44px]">
+          <button onClick={signOut} className="w-full py-3 text-[14px] font-semibold border border-sh-border text-sh-text bg-transparent rounded-xl min-h-[44px] hover:bg-sh-surface transition-colors">
             Sign out
           </button>
         </div>
@@ -300,15 +301,15 @@ const Profile = ({ open, onClose }: ProfileProps) => {
 
       {confirmErase && (
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center px-6">
-          <div className="bg-sh-bg border border-sh-border rounded-none p-5 max-w-sm w-full flex flex-col gap-4">
+          <div className="bg-sh-bg border border-sh-border rounded-2xl p-5 max-w-sm w-full flex flex-col gap-4" style={{ boxShadow: "0 8px 32px rgba(26,26,26,0.12)" }}>
             <p className="text-[13px] text-sh-text">
               This will delete all your shifts, XP, streaks and mastered cards. This cannot be undone.
             </p>
             <div className="flex flex-col gap-2">
-              <button onClick={eraseAll} className="w-full py-3 text-[14px] bg-sh-text text-sh-bg rounded-none min-h-[44px]">
+              <button onClick={eraseAll} className="w-full py-3 text-[14px] font-semibold bg-sh-error text-white rounded-xl min-h-[44px] hover:opacity-90 transition-opacity">
                 Erase everything
               </button>
-              <button onClick={() => setConfirmErase(false)} className="w-full py-3 text-[14px] border border-sh-text text-sh-text bg-transparent rounded-none min-h-[44px]">
+              <button onClick={() => setConfirmErase(false)} className="w-full py-3 text-[14px] font-semibold border border-sh-border text-sh-text bg-transparent rounded-xl min-h-[44px] hover:bg-sh-surface transition-colors">
                 Cancel
               </button>
             </div>
