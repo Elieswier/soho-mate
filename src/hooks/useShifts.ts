@@ -106,7 +106,6 @@ export const useShifts = () => {
   }, []);
 
   const addShift = useCallback(async (shift: Shift) => {
-    // optimistic update
     setShiftsState((prev) => [shift, ...prev]);
 
     const {
@@ -119,6 +118,30 @@ export const useShifts = () => {
       .upsert(toRow(shift, user.id));
 
     if (error) console.warn("Failed to save shift to Supabase:", error.message);
+  }, []);
+
+  const updateShift = useCallback(async (id: number, partial: Partial<Shift>) => {
+    let updated: Shift | undefined;
+    setShiftsState((prev) =>
+      prev.map((s) => {
+        if (s.id === id) {
+          updated = { ...s, ...partial };
+          return updated;
+        }
+        return s;
+      })
+    );
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user || !updated) return;
+
+    const { error } = await supabase
+      .from("shifts")
+      .upsert(toRow(updated, user.id));
+
+    if (error) console.warn("Failed to update shift in Supabase:", error.message);
   }, []);
 
   const deleteShift = useCallback(async (id: number) => {
@@ -138,5 +161,5 @@ export const useShifts = () => {
     if (error) console.warn("Failed to delete shift from Supabase:", error.message);
   }, []);
 
-  return { shifts, addShift, deleteShift, synced };
+  return { shifts, addShift, updateShift, deleteShift, synced };
 };
