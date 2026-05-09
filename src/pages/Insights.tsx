@@ -1,6 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-// note: useEffect/useRef used for shift backup toast; useMemo for stats
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -11,7 +9,6 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useShifts } from "@/hooks/useShifts";
 import { Shift, DAYS } from "@/lib/shifts";
 import TrainingPlan from "@/components/TrainingPlan";
@@ -28,19 +25,6 @@ const ShiftStat = ({ label, value }: { label: string; value: string }) => (
 const Insights = () => {
   const [tab, setTab] = useState<"training" | "shifts">("training");
   const { shifts } = useShifts();
-
-  const prevCountRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (prevCountRef.current === null) {
-      prevCountRef.current = shifts.length;
-      return;
-    }
-    if (shifts.length > prevCountRef.current && shifts.length % 3 === 0) {
-      toast("Don't forget to back up your data", { duration: 3000 });
-    }
-    prevCountRef.current = shifts.length;
-  }, [shifts.length]);
 
   const stats = useMemo(() => {
     if (shifts.length === 0) return null;
