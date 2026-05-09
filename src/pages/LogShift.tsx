@@ -5,7 +5,13 @@ import { useShifts } from "@/hooks/useShifts";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Shift, DAYS, calcHours } from "@/lib/shifts";
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+const todayISO = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 
 const TRAINING_RATE = 45;
 
@@ -202,7 +208,7 @@ const LogShift = () => {
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-xl text-sh-text"
+          className="w-full min-w-0 px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-xl text-sh-text"
         />
       </div>
 
@@ -227,23 +233,23 @@ const LogShift = () => {
       </div>
 
       {/* Times */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
+      <div className="grid grid-cols-2 gap-3 min-w-0">
+        <div className="min-w-0">
           <label className="block text-[10px] uppercase tracking-widest text-sh-muted mb-2">Start time</label>
           <input
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="w-full px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-xl text-sh-text"
+            className="w-full min-w-0 px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-xl text-sh-text"
           />
         </div>
-        <div>
+        <div className="min-w-0">
           <label className="block text-[10px] uppercase tracking-widest text-sh-muted mb-2">End time</label>
           <input
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="w-full px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-xl text-sh-text"
+            className="w-full min-w-0 px-3 py-2.5 text-[14px] bg-sh-bg border border-sh-border rounded-xl text-sh-text"
           />
         </div>
       </div>

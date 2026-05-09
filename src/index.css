@@ -150,6 +150,15 @@ All colors MUST be HSL.
     font-weight: 400;
   }
 
+  /* iOS fix: date/time inputs expand beyond their container by default */
+  input[type="date"],
+  input[type="time"] {
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 900;
